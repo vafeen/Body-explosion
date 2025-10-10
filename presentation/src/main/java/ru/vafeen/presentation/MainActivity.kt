@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint
 import ru.vafeen.presentation.root.NavRoot
-import ru.vafeen.presentation.ui.theme.ComposeCleanArchMultimoduleExampleTheme
+import ru.vafeen.presentation.ui.theme.MainTheme
 
 
 @AndroidEntryPoint
@@ -17,7 +17,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            ComposeCleanArchMultimoduleExampleTheme {
+            MainTheme {
                 NavRoot()
             }
         }

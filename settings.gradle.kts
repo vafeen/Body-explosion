@@ -19,7 +19,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Body explosion "
+rootProject.name = "Body explosion"
 include(":app")
 include(":presentation")
 include(":data")

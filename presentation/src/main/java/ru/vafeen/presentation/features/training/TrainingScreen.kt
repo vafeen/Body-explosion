@@ -141,6 +141,7 @@ internal fun PauseAndStopExercise(
                         sendIntent(
                             TrainingIntent.ShowToast(
                                 message = "long tap please",
+                                duration = Toast.LENGTH_SHORT
                             )
                         )
                     }
