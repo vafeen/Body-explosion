@@ -14,9 +14,8 @@ android {
         applicationId = "ru.vafeen.example"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName =
-            (if (project.hasProperty("appVersion")) project.property("appVersion") else "1.0") as String?
+        versionCode = "${project.findProperty("versionCode")}".toIntOrNull() ?: 1
+        versionName = (project.findProperty("versionName") as String?) ?: "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
