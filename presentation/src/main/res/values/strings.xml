@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="updating">Обновление…</string>
+    <string name="update_app">Обновить приложение</string>
+    <string name="mb">МБ</string>
+</resources>

@@ -40,7 +40,9 @@ import ru.vafeen.presentation.ui.theme.AppTheme
  * @param viewModel ViewModel для экрана тренировки.
  */
 @Composable
-internal fun TrainingScreen(viewModel: TrainingViewModel = hiltViewModel()) {
+internal fun TrainingScreen(
+    viewModel: TrainingViewModel = hiltViewModel()
+) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
     LaunchedEffect(null) {
