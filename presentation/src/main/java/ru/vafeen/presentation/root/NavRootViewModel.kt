@@ -56,7 +56,7 @@ internal class NavRootViewModel @Inject constructor(
                 _state.update {
                     it.copy(
                         isUpdateInProcess = status is DownloadStatus.Started || status is DownloadStatus.InProgress,
-                        percentage = if (status is DownloadStatus.InProgress) it.percentage else 0f
+                        percentage = if (status is DownloadStatus.InProgress) status.percentage / 100f else 0f
                     )
                 }
             }

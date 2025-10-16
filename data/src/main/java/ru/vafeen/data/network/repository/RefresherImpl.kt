@@ -21,11 +21,9 @@ internal class RefresherImpl @Inject constructor(
 ) : Refresher {
     private val libRefresher: LibRefresher =
         DirectRefresher.provideRefresher(
-            context = context,
             downloader = DirectRefresher.provideDownloader(
                 context = context,
                 baseUrl = BASE_LINK,
-                samplePeriodMillis = 500
             ),
             installer = DirectRefresher.provideInstaller(context = context)
         )
