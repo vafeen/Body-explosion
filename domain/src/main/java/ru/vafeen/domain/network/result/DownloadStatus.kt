@@ -15,7 +15,7 @@ sealed class DownloadStatus {
      *
      * @property percentage Процент загруженного файла, выраженный в виде числа с плавающей запятой от 0.0 до 1.0.
      */
-    class InProgress(val percentage: Float) : DownloadStatus()
+    class InProgress(val percentage: Int) : DownloadStatus()
 
     /**
      * Указывает на успешное завершение процесса загрузки.
