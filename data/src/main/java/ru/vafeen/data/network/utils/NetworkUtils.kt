@@ -4,19 +4,19 @@ import ru.vafeen.domain.network.result.ResponseResult
 
 
 /**
- * Wrapper function for safe network request execution with comprehensive error handling.
+ * Функция-обертка для безопасного выполнения сетевых запросов с комплексной обработкой ошибок.
  *
- * This higher-order function:
- * 1. Executes the provided network request in a try-catch block
- * 2. Returns successful result wrapped in [ResponseResult.Success] if execution succeeds
- * 3. Catches all exceptions and returns them as [ResponseResult.Error]
- * 4. Logs full error stacktrace for debugging purposes
+ * Эта функция высшего порядка:
+ * 1. Выполняет предоставленный сетевой запрос в блоке try-catch.
+ * 2. Возвращает успешный результат, обернутый в [ResponseResult.Success], если выполнение прошло успешно.
+ * 3. Перехватывает все исключения и возвращает их как [ResponseResult.Error].
+ * 4. Логирует полную трассировку стека ошибок для отладки.
  *
- * @param T Type of the expected successful response
- * @param response Suspending lambda containing the network request logic
- * @return [ResponseResult] containing either:
- *   - [ResponseResult.Success] with the response data on successful execution
- *   - [ResponseResult.Error] with error details if any exception occurs
+ * @param T Тип ожидаемого успешного ответа.
+ * @param response Приостанавливающая лямбда, содержащая логику сетевого запроса.
+ * @return [ResponseResult], содержащий либо:
+ * - [ResponseResult.Success] с данными ответа при успешном выполнении
+ * - [ResponseResult.Error] с деталями ошибки, если возникает какое-либо исключение
  */
 internal suspend fun <T> getResponseResultWrappedAllErrors(response: suspend () -> T): ResponseResult<T> =
     try {
