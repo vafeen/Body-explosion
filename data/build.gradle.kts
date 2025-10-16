@@ -52,4 +52,6 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
+    //Direct-Refresher
+    implementation(libs.direct.refresher)
 }

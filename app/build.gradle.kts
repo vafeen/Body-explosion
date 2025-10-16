@@ -15,7 +15,8 @@ android {
         minSdk = 26
         targetSdk = 36
         versionCode = 1
-        versionName = "1.0"
+        versionName =
+            (if (project.hasProperty("appVersion")) project.property("appVersion") else "1.0") as String?
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
