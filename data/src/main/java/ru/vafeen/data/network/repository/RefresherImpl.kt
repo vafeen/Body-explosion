@@ -1,10 +1,11 @@
 package ru.vafeen.data.network.repository
 
 import android.content.Context
+import android.util.Log
 import android.vafeen.direct_refresher.DirectRefresher
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import ru.vafeen.data.network.converters.toStatus
 import ru.vafeen.domain.network.service.Refresher
 import javax.inject.Inject
@@ -18,18 +19,20 @@ internal class RefresherImpl @Inject constructor(
             context = context,
             downloader = DirectRefresher.provideDownloader(
                 context = context,
-                baseUrl = BASE_LINK
+                baseUrl = BASE_LINK,
+                samplePeriodMillis = 500
             ),
             installer = DirectRefresher.provideInstaller(context = context)
         )
     override val progressFlow =
-        libRefresher.progressFlow.map { it.toStatus() }
+        libRefresher.progressFlow.map { it.toStatus() }.onEach {
+            Log.d("refresher", "$it")
+        }
 
     override suspend fun refresh(
-        coroutineScope: CoroutineScope,
         url: String,
         downloadedFileName: String
-    ) = libRefresher.refresh(coroutineScope, url, downloadedFileName)
+    ) = libRefresher.refresh(url, downloadedFileName)
 
     companion object {
         private const val BASE_LINK = "https://github.com/"

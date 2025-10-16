@@ -9,7 +9,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.vafeen.domain.local_database.TestLocalRepository
@@ -53,21 +52,13 @@ internal class NavRootViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            refresher.progressFlow.map {
-                it !is DownloadStatus.Error && it !is DownloadStatus.Success
-            }.collect { isUpdateInProcess ->
-                _state.update { it.copy(isUpdateInProcess = isUpdateInProcess) }
-            }
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            refresher.progressFlow.map {
-                when (it) {
-                    is DownloadStatus.InProgress -> it.percentage
-                    DownloadStatus.Success -> 100f
-                    else -> 0f
+            refresher.progressFlow.collect { status ->
+                _state.update {
+                    it.copy(
+                        isUpdateInProcess = status is DownloadStatus.Started || status is DownloadStatus.InProgress,
+                        percentage = if (status is DownloadStatus.InProgress) it.percentage else 0f
+                    )
                 }
-            }.collect { percentage ->
-                _state.update { it.copy(percentage = percentage) }
             }
         }
     }
@@ -75,7 +66,7 @@ internal class NavRootViewModel @Inject constructor(
     private suspend fun updateApp() {
         _state.value.release?.let { release ->
             _state.update { it.copy(isUpdateNeeded = false, isUpdateInProcess = true) }
-            refresher.refresh(viewModelScope, release.apkUrl, Refresher.APK_FILE_NAME)
+            refresher.refresh(release.apkUrl, Refresher.APK_FILE_NAME)
         }
     }
 }

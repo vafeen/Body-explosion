@@ -15,7 +15,7 @@ hiltAndroid = "2.57.2"
 roomRuntime = "2.8.2"
 roomKtx = "2.8.2"
 roomCompiler = "2.8.2"
-directRefresher = "1.0.3"
+directRefresher = "1.0.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
