@@ -11,6 +11,11 @@ import ru.vafeen.domain.network.service.Refresher
 import javax.inject.Inject
 import android.vafeen.direct_refresher.refresher.Refresher as LibRefresher
 
+/**
+ * Реализация интерфейса [Refresher] для обновления приложения.
+ *
+ * @param context Контекст приложения.
+ */
 internal class RefresherImpl @Inject constructor(
     @ApplicationContext context: Context
 ) : Refresher {
