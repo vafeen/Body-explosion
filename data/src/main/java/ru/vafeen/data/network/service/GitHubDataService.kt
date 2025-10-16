@@ -21,7 +21,7 @@ internal interface GitHubDataService {
         const val BASE_LINK = "https://api.github.com/"
 
         private object EndPoint {
-            const val LATEST_RELEASE_INFO = "repos/vafeen/test_android_actions/releases/latest"
+            const val LATEST_RELEASE_INFO = "repos/vafeen/body-explosion/releases/latest"
         }
     }
 }
