@@ -7,27 +7,27 @@ import androidx.room.OnConflictStrategy
 
 
 /**
- * Parent DAO interface with base methods
+ * Родительский интерфейс DAO с базовыми методами
  */
 @Dao
 internal interface DataAccessObject<T> {
 
     /**
-     * Inserting && Updating in database one or more entities
-     * @param entities [Set of entities to put in database]
+     * Вставка и обновление в базе данных одной или нескольких сущностей
+     * @param entities [Набор сущностей для размещения в базе данных]
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entities: List<T>)
 
     /**
-     * Deleting from database one or more entities
-     * @param entities [Set of entities to remove from database]
+     * Удаление из базы данных одной или нескольких сущностей
+     * @param entities [Набор сущностей для удаления из базы данных]
      */
     @Delete
     suspend fun delete(entities: List<T>)
 
     /**
-     * Clearing table
+     * Очистка таблицы
      */
     suspend fun clear()
 }

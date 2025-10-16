@@ -11,10 +11,17 @@ import ru.vafeen.data.network.service.GitHubDataService
 import ru.vafeen.domain.network.service.Refresher
 import javax.inject.Singleton
 
-
+/**
+ * Модуль Dagger для предоставления сетевых сервисов.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 internal class ServicesModule {
+    /**
+     * Предоставляет экземпляр [GitHubDataService].
+     *
+     * @return Экземпляр [GitHubDataService].
+     */
     @Provides
     @Singleton
     fun providesGitHubDataService(): GitHubDataService = Retrofit.Builder()
@@ -22,6 +29,12 @@ internal class ServicesModule {
         .addConverterFactory(GsonConverterFactory.create())
         .build().create(GitHubDataService::class.java)
 
+    /**
+     * Предоставляет реализацию [Refresher].
+     *
+     * @param impl Реализация [RefresherImpl].
+     * @return Экземпляр [Refresher].
+     */
     @Provides
     @Singleton
     fun provideRefresher(impl: RefresherImpl): Refresher = impl

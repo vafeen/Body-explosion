@@ -1,31 +1,31 @@
 package ru.vafeen.domain.network.result
 
 /**
- * Sealed class for representing the status of a download operation.
+ * Запечатанный класс для представления статуса операции загрузки.
  */
 sealed class DownloadStatus {
 
     /**
-     * Represents the start of the download process.
+     * Представляет начало процесса загрузки.
      */
     data object Started : DownloadStatus()
 
     /**
-     * Represents the progress of the download with the current percentage.
+     * Представляет ход загрузки с текущим процентным соотношением.
      *
-     * @property percentage The percentage of the file downloaded, expressed as a float between 0.0 and 1.0.
+     * @property percentage Процент загруженного файла, выраженный в виде числа с плавающей запятой от 0.0 до 1.0.
      */
     class InProgress(val percentage: Float) : DownloadStatus()
 
     /**
-     * Indicates the successful completion of the download process.
+     * Указывает на успешное завершение процесса загрузки.
      */
     data object Success : DownloadStatus()
 
     /**
-     * Represents an error that occurred during the download process.
+     * Представляет ошибку, возникшую в процессе загрузки.
      *
-     * @property exception The exception describing the error.
+     * @property exception Исключение, описывающее ошибку.
      */
     class Error(val exception: Exception) : DownloadStatus()
 }

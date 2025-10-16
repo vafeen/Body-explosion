@@ -4,22 +4,22 @@ import kotlinx.coroutines.flow.Flow
 import ru.vafeen.domain.network.result.DownloadStatus
 
 /**
- * Interface for refreshing Android applications by downloading and installing APK files.
+ * Интерфейс для обновления приложений Android путем загрузки и установки APK-файлов.
  */
 interface Refresher {
 
     /**
-     * A flow that broadcasts the progress of the download process.
-     * It emits updates on the status of the download, such as started, in-progress, success, or error.
+     * Поток, который передает прогресс процесса загрузки.
+     * Он выдает обновления о статусе загрузки, такие как "начата", "в процессе", "успешно" или "ошибка".
      */
     val progressFlow: Flow<DownloadStatus>
 
     /**
-     * Starts the download of an APK file from the provided URL and installs it once downloaded.
-     * This function downloads the file and tracks the progress of the download.
+     * Начинает загрузку APK-файла с предоставленного URL-адреса и устанавливает его после загрузки.
+     * Эта функция загружает файл и отслеживает ход загрузки.
      *
-     * @param url The URL of the APK file to be downloaded.
-     * @param downloadedFileName The name under which the downloaded APK file will be saved.
+     * @param url URL-адрес APK-файла для загрузки.
+     * @param downloadedFileName Имя, под которым будет сохранен загруженный APK-файл.
      */
     suspend fun refresh(url: String, downloadedFileName: String)
 
