@@ -28,7 +28,7 @@ jobs:
         id: generate_tag
         run: |
           # Получаем текущую дату
-          TODAY=$(date +'%Y.%m.%d')
+          TODAY=$(TZ=Europe/Moscow date +'%Y.%m.%d')
           echo "Base tag: $TODAY"
           
           # Получаем все существующие теги из текущего репозитория
