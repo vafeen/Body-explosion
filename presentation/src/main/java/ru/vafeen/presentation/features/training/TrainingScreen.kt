@@ -32,6 +32,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import ru.vafeen.presentation.root.NavRootIntent
 import ru.vafeen.presentation.ui.theme.AppTheme
 
 /**
@@ -41,8 +43,13 @@ import ru.vafeen.presentation.ui.theme.AppTheme
  */
 @Composable
 internal fun TrainingScreen(
-    viewModel: TrainingViewModel = hiltViewModel()
+    sendRootIntent: (NavRootIntent) -> Unit,
 ) {
+    val viewModel = hiltViewModel<TrainingViewModel, TrainingViewModel.Factory>(
+        creationCallback = { factory ->
+            factory.create(sendRootIntent)
+        }
+    )
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
     LaunchedEffect(null) {
@@ -56,27 +63,45 @@ internal fun TrainingScreen(
             }
         }
     }
-    when (val currentState = state) {
-        is TrainingState.NotStarted -> NotStartedPane(sendIntent = viewModel::handleIntent)
-        is TrainingState.InProgress -> TrainingPane(
-            state = currentState,
-            sendIntent = viewModel::handleIntent
-        )
+    Column(modifier = Modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Button(onClick = { viewModel.handleIntent(TrainingIntent.NavigateToSettings) }) {
+                Text("navigateToSettings")
+            }
+        }
+        when (val currentState = state) {
+            is TrainingState.NotStarted -> NotStartedPane(
+                modifier = Modifier.weight(1f),
+                sendIntent = viewModel::handleIntent
+            )
 
-        is TrainingState.Break -> BreakPane(
-            state = currentState,
-            sendIntent = viewModel::handleIntent
-        )
+            is TrainingState.InProgress -> TrainingPane(
+                modifier = Modifier.weight(1f),
+                state = currentState,
+                sendIntent = viewModel::handleIntent
+            )
 
-        is TrainingState.PausedBreak -> PausedBreakPane(
-            state = currentState,
-            sendIntent = viewModel::handleIntent
-        )
+            is TrainingState.Break -> BreakPane(
+                modifier = Modifier.weight(1f),
+                state = currentState,
+                sendIntent = viewModel::handleIntent
+            )
 
-        is TrainingState.PausedTraining -> PausedTrainingPane(
-            state = currentState,
-            sendIntent = viewModel::handleIntent
-        )
+            is TrainingState.PausedBreak -> PausedBreakPane(
+                modifier = Modifier.weight(1f),
+                state = currentState,
+                sendIntent = viewModel::handleIntent
+            )
+
+            is TrainingState.PausedTraining -> PausedTrainingPane(
+                modifier = Modifier.weight(1f),
+                state = currentState,
+                sendIntent = viewModel::handleIntent
+            )
+        }
     }
 }
 
@@ -88,11 +113,12 @@ internal fun TrainingScreen(
  */
 @Composable
 internal fun TrainingPane(
+    modifier: Modifier,
     state: TrainingState.InProgress,
     sendIntent: (TrainingIntent) -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -160,11 +186,12 @@ internal fun PauseAndStopExercise(
  */
 @Composable
 internal fun NotStartedPane(
+    modifier: Modifier,
     sendIntent: (TrainingIntent) -> Unit
 ) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxWidth()
     ) {
         StartButton { sendIntent(TrainingIntent.StartTraining) }
     }
@@ -177,9 +204,12 @@ internal fun NotStartedPane(
  * @param sendIntent Функция для отправки намерений в ViewModel.
  */
 @Composable
-internal fun BreakPane(state: TrainingState.Break, sendIntent: (TrainingIntent) -> Unit) {
+internal fun BreakPane(
+    modifier: Modifier,
+    state: TrainingState.Break, sendIntent: (TrainingIntent) -> Unit
+) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -210,11 +240,12 @@ internal fun BreakPane(state: TrainingState.Break, sendIntent: (TrainingIntent) 
  */
 @Composable
 internal fun PausedBreakPane(
+    modifier: Modifier,
     state: TrainingState.PausedBreak,
     sendIntent: (TrainingIntent) -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -237,11 +268,12 @@ internal fun PausedBreakPane(
  */
 @Composable
 internal fun PausedTrainingPane(
+    modifier: Modifier,
     state: TrainingState.PausedTraining,
     sendIntent: (TrainingIntent) -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
