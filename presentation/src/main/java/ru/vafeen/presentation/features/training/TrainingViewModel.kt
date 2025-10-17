@@ -3,6 +3,9 @@ package ru.vafeen.presentation.features.training
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -15,7 +18,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import javax.inject.Inject
+import ru.vafeen.presentation.navigation.Screen
+import ru.vafeen.presentation.root.NavRootIntent
 
 private const val SECONDS_FOR_EXERCISE = 10
 private const val SECONDS_FOR_BREAK = 10
@@ -26,8 +30,10 @@ private const val TOTAL_EXERCISES = 10
  *
  * @property state Поток текущего состояния экрана тренировки.
  */
-@HiltViewModel
-internal class TrainingViewModel @Inject constructor() : ViewModel() {
+@HiltViewModel(assistedFactory = TrainingViewModel.Factory::class)
+internal class TrainingViewModel @AssistedInject constructor(
+    @Assisted private val sendRootIntent: (NavRootIntent) -> Unit,
+) : ViewModel() {
     private val _state = MutableStateFlow<TrainingState>(TrainingState.NotStarted)
     val state = _state.asStateFlow()
     private val _effects = MutableSharedFlow<TrainingEffect>()
@@ -48,9 +54,13 @@ internal class TrainingViewModel @Inject constructor() : ViewModel() {
                 TrainingIntent.StartTraining -> startTraining()
                 TrainingIntent.PauseTraining -> pauseTraining()
                 is TrainingIntent.ShowToast -> showToast(intent.message)
+                TrainingIntent.NavigateToSettings -> navigateToSettings()
             }
         }
     }
+
+    private fun navigateToSettings() =
+        sendRootIntent(NavRootIntent.NavigateTo(Screen.Settings))
 
     private suspend fun showToast(message: String) =
         _effects.emit(TrainingEffect.ShowToast(message, Toast.LENGTH_SHORT))
@@ -180,5 +190,10 @@ internal class TrainingViewModel @Inject constructor() : ViewModel() {
 
             else -> {}
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(sendRootIntent: (NavRootIntent) -> Unit): TrainingViewModel
     }
 }

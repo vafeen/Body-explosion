@@ -26,4 +26,5 @@ internal sealed interface TrainingIntent {
      * @property duration Длительность отображения сообщения (например, Toast.LENGTH_SHORT).
      */
     data class ShowToast(val message: String, val duration: Int) : TrainingIntent
+    data object NavigateToSettings : TrainingIntent
 }
