@@ -1,0 +1,81 @@
+package ru.vafeen.presentation.features.settings
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import ru.vafeen.presentation.common.components.TextForThisTheme
+import ru.vafeen.presentation.common.components.TrainingString
+import ru.vafeen.presentation.ui.theme.FontSize
+
+
+/**
+ * Экран настроек.
+ *
+ * @param viewModel Модель представления для экрана настроек.
+ */
+@Composable
+internal fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
+    val state by viewModel.state.collectAsState()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        TextForThisTheme(
+            text = "Settings",
+            fontSize = FontSize.big22
+        )
+        state.let {
+            if (it.exerciseDurationSeconds != null && it.breakDurationSeconds != null) {
+                TextForThisTheme(
+                    modifier = Modifier.clickable {
+                        viewModel.handleIntent(SettingsIntent.UpdateSettings { settings ->
+                            settings.copy(exerciseDurationSeconds = settings.exerciseDurationSeconds + 1)
+                        })
+                    },
+                    text = "exerciseDurationSeconds=${it.exerciseDurationSeconds}",
+                    fontSize = FontSize.medium19
+                )
+                TextForThisTheme(
+                    modifier = Modifier.clickable {
+                        viewModel.handleIntent(SettingsIntent.UpdateSettings { settings ->
+                            settings.copy(breakDurationSeconds = settings.breakDurationSeconds + 1)
+                        })
+                    },
+                    text = "breakDurationSeconds=${it.breakDurationSeconds}",
+                    fontSize = FontSize.medium19
+                )
+                TextForThisTheme(
+                    modifier = Modifier.clickable {
+                        viewModel.handleIntent(SettingsIntent.UpdateSettings { settings ->
+                            settings.copy(
+                                breakDurationSeconds = 10,
+                                exerciseDurationSeconds = 60
+                            )
+                        })
+                    },
+                    text = "reset",
+                    fontSize = FontSize.medium19
+                )
+
+                it.trainings.forEach { training ->
+                    training.TrainingString {
+                        viewModel.handleIntent(SettingsIntent.UpdateTraining(it))
+                    }
+                }
+            }
+        }
+    }
+}

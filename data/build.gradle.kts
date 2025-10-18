@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -54,4 +55,6 @@ dependencies {
     kapt(libs.androidx.room.compiler)
     //Direct-Refresher
     implementation(libs.direct.refresher)
+    //serialization
+    implementation(libs.kotlinx.serialization.json)
 }
