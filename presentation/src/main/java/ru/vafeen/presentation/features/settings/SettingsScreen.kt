@@ -4,13 +4,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import ru.vafeen.presentation.common.components.TextForThisTheme
+import ru.vafeen.presentation.common.components.TrainingString
 import ru.vafeen.presentation.ui.theme.FontSize
 
 
@@ -18,8 +22,10 @@ import ru.vafeen.presentation.ui.theme.FontSize
 internal fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
     Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextForThisTheme(
@@ -58,6 +64,12 @@ internal fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                     text = "reset",
                     fontSize = FontSize.medium19
                 )
+
+                it.trainings.forEach { training ->
+                    training.TrainingString {
+                        viewModel.handleIntent(SettingsIntent.UpdateTraining(it))
+                    }
+                }
             }
         }
     }

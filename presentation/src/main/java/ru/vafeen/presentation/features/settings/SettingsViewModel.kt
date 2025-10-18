@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import ru.vafeen.domain.datastore.SettingsManager
 import ru.vafeen.domain.local_database.TrainingLocalRepository
 import ru.vafeen.domain.models.Settings
+import ru.vafeen.domain.models.Training
 import ru.vafeen.presentation.common.utils.getAppVersion
 import javax.inject.Inject
 
@@ -34,6 +35,7 @@ internal class SettingsViewModel @Inject constructor(
             when (intent) {
                 is SettingsIntent.UpdateSettings -> updateSettings(intent.updating)
                 SettingsIntent.ResetDuration -> resetDuration()
+                is SettingsIntent.UpdateTraining -> updateTraining(intent.training)
             }
         }
     }
@@ -50,6 +52,19 @@ internal class SettingsViewModel @Inject constructor(
             }
         }
     }
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            trainingLocalRepository.getAllTrainings().collect {
+                _state.update { state ->
+                    state.copy(trainings = it)
+                }
+            }
+        }
+    }
+
+    private suspend fun updateTraining(training: Training) =
+        trainingLocalRepository.insert(listOf(training))
 
     private fun resetDuration() = settingsManager.save {
         it.copy(

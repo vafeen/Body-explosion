@@ -14,16 +14,17 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import ru.vafeen.domain.datastore.SettingsManager
+import ru.vafeen.domain.local_database.TrainingLocalRepository
+import ru.vafeen.domain.models.Training
 import ru.vafeen.presentation.navigation.Screen
 import ru.vafeen.presentation.root.NavRootIntent
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-
-private const val TOTAL_EXERCISES = 10
 
 /**
  * ViewModel для экрана тренировки, управляющая состоянием и логикой таймера.
@@ -33,11 +34,13 @@ private const val TOTAL_EXERCISES = 10
 @HiltViewModel(assistedFactory = TrainingViewModel.Factory::class)
 internal class TrainingViewModel @AssistedInject constructor(
     @Assisted private val sendRootIntent: (NavRootIntent) -> Unit,
+    private val trainingLocalRepository: TrainingLocalRepository,
     private val settingsManager: SettingsManager,
 ) : ViewModel() {
     private val settings = settingsManager.settingsFlow.value
     private var SECONDS_FOR_EXERCISE = settings.exerciseDurationSeconds
     private var SECONDS_FOR_BREAK = settings.breakDurationSeconds
+    private var exercises = listOf<Training>()
     private val _state = MutableStateFlow<TrainingState>(TrainingState.NotStarted)
     val state = _state.asStateFlow()
     private val _effects = MutableSharedFlow<TrainingEffect>()
@@ -51,6 +54,30 @@ internal class TrainingViewModel @AssistedInject constructor(
             settingsManager.settingsFlow.collect { settings ->
                 SECONDS_FOR_EXERCISE = settings.exerciseDurationSeconds
                 SECONDS_FOR_BREAK = settings.breakDurationSeconds
+            }
+        }
+    }
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            val defaultTrainings = listOf(
+                Training(1, "Прыжки", true),
+                Training(2, "Пресс", true),
+                Training(3, "Выседы", true),
+                Training(4, "Отжимания", true),
+                Training(5, "Складка", true),
+                Training(6, "Планка", true),
+                Training(7, "Круги", false),      // было "Круги??" → исключено из тренировки
+                Training(8, "Рукоход", true),
+                Training(9, "Разгибания", true),
+                Training(10, "Лесенка", true),
+                Training(11, "Лодочка", true),
+                Training(12, "Флажок", false)     // было "Флажок??" → исключено из тренировки
+            )
+            val trainings = trainingLocalRepository.getAllTrainings().first()
+            if (trainings.isEmpty()) trainingLocalRepository.insert(trainings = defaultTrainings)
+            trainingLocalRepository.getAllTrainings().collect {
+                exercises = it
             }
         }
     }
@@ -93,21 +120,21 @@ internal class TrainingViewModel @AssistedInject constructor(
                 secondsLeft = currentState.secondsLeft,
                 secondsOnOneExercise = SECONDS_FOR_EXERCISE,
                 currentExercise = currentState.currentExercise,
-                totalExercises = TOTAL_EXERCISES
+                exercises = exercises
             )
 
             is TrainingState.PausedBreak -> TrainingState.Break(
                 secondsLeft = currentState.secondsLeft,
                 secondsForBreak = SECONDS_FOR_BREAK,
                 currentExercise = currentState.currentExercise,
-                totalExercises = TOTAL_EXERCISES
+                exercises = exercises
             )
 
             else -> TrainingState.InProgress(
                 secondsLeft = SECONDS_FOR_EXERCISE,
                 secondsOnOneExercise = SECONDS_FOR_EXERCISE,
                 currentExercise = 0,
-                totalExercises = TOTAL_EXERCISES
+                exercises = exercises
             )
         }
 
@@ -130,12 +157,12 @@ internal class TrainingViewModel @AssistedInject constructor(
                         if (newSeconds > 0) {
                             _state.value = currentState.copy(secondsLeft = newSeconds)
                         } else {
-                            if (currentState.currentExercise < TOTAL_EXERCISES - 1) {
+                            if (currentState.currentExercise < exercises.size - 1) {
                                 _state.value = TrainingState.Break(
                                     secondsLeft = SECONDS_FOR_BREAK,
                                     secondsForBreak = SECONDS_FOR_BREAK,
                                     currentExercise = currentState.currentExercise,
-                                    totalExercises = TOTAL_EXERCISES
+                                    exercises = exercises
                                 )
                             } else {
                                 stopTraining()
@@ -152,7 +179,7 @@ internal class TrainingViewModel @AssistedInject constructor(
                                 secondsLeft = SECONDS_FOR_EXERCISE,
                                 secondsOnOneExercise = SECONDS_FOR_EXERCISE,
                                 currentExercise = currentState.currentExercise + 1,
-                                totalExercises = TOTAL_EXERCISES
+                                exercises = exercises
                             )
                         }
                     }
@@ -181,14 +208,13 @@ internal class TrainingViewModel @AssistedInject constructor(
      * Сохраняет текущее состояние в Paused.
      */
     private suspend fun pauseTraining() {
-        val currentState = _state.value
-        when (currentState) {
+        when (val currentState = _state.value) {
             is TrainingState.InProgress -> {
                 stopTimer()
                 _state.value = TrainingState.PausedTraining(
                     secondsLeft = currentState.secondsLeft,
                     currentExercise = currentState.currentExercise,
-                    totalExercises = TOTAL_EXERCISES
+                    exercises = exercises
                 )
             }
 
@@ -197,7 +223,7 @@ internal class TrainingViewModel @AssistedInject constructor(
                 _state.value = TrainingState.PausedBreak(
                     secondsLeft = currentState.secondsLeft,
                     currentExercise = currentState.currentExercise,
-                    totalExercises = TOTAL_EXERCISES
+                    exercises = exercises
                 )
             }
 

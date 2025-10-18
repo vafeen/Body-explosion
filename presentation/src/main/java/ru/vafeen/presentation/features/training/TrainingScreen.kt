@@ -124,7 +124,7 @@ internal fun TrainingPane(
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         TextForThisTheme(
-            text = "Упражнение ${state.currentExercise + 1}/${state.totalExercises}",
+            text = "Упражнение ${state.currentExercise + 1}/${state.exercises.size}",
             fontSize = FontSize.medium19
         )
         Timer(
@@ -220,7 +220,7 @@ internal fun BreakPane(
             fontSize = FontSize.medium19,
         )
         TextForThisTheme(
-            text = "Упражнений сделано ${state.currentExercise + 1}/${state.totalExercises}",
+            text = "Упражнений сделано ${state.currentExercise + 1}/${state.exercises.size}",
             fontSize = FontSize.medium19,
         )
         Timer(
@@ -253,7 +253,7 @@ internal fun PausedBreakPane(
     ) {
         TextForThisTheme(text = "Пауза", fontSize = FontSize.medium19)
         TextForThisTheme(
-            text = "Упражнений сделано ${state.currentExercise + 1}/${state.totalExercises}",
+            text = "Упражнений сделано ${state.currentExercise + 1}/${state.exercises.size}",
             fontSize = FontSize.medium19,
         )
         Button(onClick = { sendIntent(TrainingIntent.StartTraining) }) {
@@ -281,7 +281,7 @@ internal fun PausedTrainingPane(
     ) {
         TextForThisTheme(text = "Пауза", fontSize = FontSize.medium19)
         TextForThisTheme(
-            text = "Текущее упражнение ${state.currentExercise + 1}/${state.totalExercises}",
+            text = "Текущее упражнение ${state.currentExercise + 1}/${state.exercises.size}",
             fontSize = FontSize.medium19,
         )
         Button(onClick = { sendIntent(TrainingIntent.StartTraining) }) {

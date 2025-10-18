@@ -1,7 +1,7 @@
 package ru.vafeen.data.local_database
 
 import kotlinx.coroutines.flow.Flow
-import ru.vafeen.data.local_database.converters.recursiveMap
+import kotlinx.coroutines.flow.map
 import ru.vafeen.data.local_database.converters.toTraining
 import ru.vafeen.data.local_database.converters.toTrainingEntity
 import ru.vafeen.domain.local_database.TrainingLocalRepository
@@ -18,7 +18,11 @@ internal class RoomTrainingLocalRepository @Inject constructor(
 ) : TrainingLocalRepository {
     private val trainingDao = db.trainingDao()
     override fun getAllTrainings(): Flow<List<Training>> =
-        trainingDao.getAll().recursiveMap { it.toTraining() }
+        trainingDao.getAll().map { list ->
+            list.map {
+                it.toTraining()
+            }.sortedBy { it.id }
+        }
 
     override suspend fun insert(trainings: List<Training>) =
         trainingDao.insert(entities = trainings.map { it.toTrainingEntity() })

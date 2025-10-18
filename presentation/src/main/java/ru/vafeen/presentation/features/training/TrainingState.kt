@@ -1,5 +1,7 @@
 package ru.vafeen.presentation.features.training
 
+import ru.vafeen.domain.models.Training
+
 /**
  * Представляет состояния экрана тренировки.
  */
@@ -21,7 +23,7 @@ internal sealed interface TrainingState {
         val secondsLeft: Int,
         val secondsOnOneExercise: Int,
         val currentExercise: Int,
-        val totalExercises: Int,
+        val exercises: List<Training>,
     ) : TrainingState
 
     /**
@@ -36,7 +38,7 @@ internal sealed interface TrainingState {
         val secondsLeft: Int,
         val secondsForBreak: Int,
         val currentExercise: Int,
-        val totalExercises: Int,
+        val exercises: List<Training>,
     ) : TrainingState
 
     /**
@@ -49,7 +51,7 @@ internal sealed interface TrainingState {
     data class PausedTraining(
         val secondsLeft: Int,
         val currentExercise: Int,
-        val totalExercises: Int,
+        val exercises: List<Training>,
     ) : TrainingState
 
     /**
@@ -62,6 +64,6 @@ internal sealed interface TrainingState {
     data class PausedBreak(
         val secondsLeft: Int,
         val currentExercise: Int,
-        val totalExercises: Int,
+        val exercises: List<Training>,
     ) : TrainingState
 }

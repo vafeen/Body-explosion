@@ -2,23 +2,23 @@ package ru.vafeen.data.local_database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import ru.vafeen.data.local_database.dao.TestDao
-import ru.vafeen.data.local_database.entity.TestEntity
+import ru.vafeen.data.local_database.dao.TrainingDao
+import ru.vafeen.data.local_database.entity.TrainingEntity
 
 /**
  * Основной класс базы данных приложения.
  *
- * @property testDao Предоставляет доступ к [TestDao].
+ * @property trainingDao Предоставляет доступ к [TrainingDao].
  */
 @Database(
     version = 1,
-    entities = [TestEntity::class],
+    entities = [TrainingEntity::class],
     exportSchema = true
 )
 internal abstract class AppDatabase : RoomDatabase() {
-    abstract fun testDao(): TestDao
+    abstract fun trainingDao(): TrainingDao
 
     companion object {
-        const val NAME = "TestDb"
+        const val NAME = "AppDatabase"
     }
 }
