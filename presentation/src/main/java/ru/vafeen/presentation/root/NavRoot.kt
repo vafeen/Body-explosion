@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -23,6 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import ru.vafeen.presentation.common.components.TextForThisTheme
 import ru.vafeen.presentation.common.components.UpdateAvailable
 import ru.vafeen.presentation.common.components.UpdateProgress
 import ru.vafeen.presentation.common.utils.getAppVersion
@@ -30,6 +30,7 @@ import ru.vafeen.presentation.features.settings.SettingsScreen
 import ru.vafeen.presentation.features.training.TrainingScreen
 import ru.vafeen.presentation.navigation.Screen
 import ru.vafeen.presentation.ui.theme.AppTheme
+import ru.vafeen.presentation.ui.theme.FontSize
 
 
 /**
@@ -80,7 +81,10 @@ internal fun NavRoot(viewModel: NavRootViewModel = hiltViewModel()) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text("${version.second}(${version.first})")
+                TextForThisTheme(
+                    text = "${version.second}(${version.first})",
+                    fontSize = FontSize.small17
+                )
                 state.let {
                     if (it.release != null && it.isUpdateNeeded) {
                         UpdateAvailable(it.release) {
