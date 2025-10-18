@@ -3,6 +3,7 @@ package ru.vafeen.presentation.features.training
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,16 +31,18 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import ru.vafeen.presentation.common.components.TextForThisTheme
 import ru.vafeen.presentation.root.NavRootIntent
 import ru.vafeen.presentation.ui.theme.AppTheme
+import ru.vafeen.presentation.ui.theme.FontSize
+import ru.vafeen.presentation.ui.theme.breakColor
+import ru.vafeen.presentation.ui.theme.exerciseColor
 
 /**
  * Главный экран тренировки, который управляет отображением различных состояний тренировки.
  *
- * @param viewModel ViewModel для экрана тренировки.
+ * @param sendRootIntent Функция для отправки намерений в корневой навигационный граф.
  */
 @Composable
 internal fun TrainingScreen(
@@ -118,16 +121,18 @@ internal fun TrainingPane(
     sendIntent: (TrainingIntent) -> Unit
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .background(exerciseColor),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        Text(
-            text = "Упражнение ${state.currentExercise + 1}/${state.totalExercises}",
-            color = AppTheme.colors.text
+        TextForThisTheme(
+            text = "Текущее упражнение\n[${state.currentExercise + 1}/${state.exercises.size}] ${state.exercises[state.currentExercise].name}",
+            fontSize = FontSize.medium19,
         )
         Timer(
-            modifier = Modifier.size(100.dp),
+            modifier = Modifier.size(200.dp),
             currentSecondsLeft = state.secondsLeft,
             totalSeconds = state.secondsOnOneExercise,
             backgroundArcColor = AppTheme.colors.defaultButtonColor,
@@ -156,7 +161,7 @@ internal fun PauseAndStopExercise(
         Button(onClick = { sendIntent(TrainingIntent.PauseTraining) }) {
             Text(text = "Пауза")
         }
-        Text(
+        TextForThisTheme(
             text = "Стоп", modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))
                 .border(
@@ -174,7 +179,8 @@ internal fun PauseAndStopExercise(
                         )
                     }
                 )
-                .padding(10.dp))
+                .padding(10.dp),
+            fontSize = FontSize.medium19)
 
     }
 }
@@ -209,20 +215,27 @@ internal fun BreakPane(
     state: TrainingState.Break, sendIntent: (TrainingIntent) -> Unit
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .background(breakColor),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        Text(
+        TextForThisTheme(
             text = "Отдых",
-            color = AppTheme.colors.text
+            fontSize = FontSize.medium19,
         )
-        Text(
-            text = "Упражнений сделано ${state.currentExercise + 1}/${state.totalExercises}",
-            color = AppTheme.colors.text
+        TextForThisTheme(
+            text = "Упражнений сделано ${state.currentExercise + 1}/${state.exercises.size}",
+            fontSize = FontSize.medium19,
         )
+        TextForThisTheme(
+            text = "Следующее упражнение\n${state.exercises[state.currentExercise + 1].name}",
+            fontSize = FontSize.medium19,
+        )
+
         Timer(
-            modifier = Modifier.size(100.dp),
+            modifier = Modifier.size(200.dp),
             currentSecondsLeft = state.secondsLeft,
             totalSeconds = state.secondsForBreak,
             backgroundArcColor = AppTheme.colors.defaultButtonColor,
@@ -245,14 +258,20 @@ internal fun PausedBreakPane(
     sendIntent: (TrainingIntent) -> Unit
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .background(breakColor),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Пауза", color = AppTheme.colors.text)
-        Text(
-            text = "Упражнений сделано ${state.currentExercise + 1}/${state.totalExercises}",
-            color = AppTheme.colors.text
+        TextForThisTheme(text = "Пауза", fontSize = FontSize.medium19)
+        TextForThisTheme(
+            text = "Упражнений сделано ${state.currentExercise + 1}/${state.exercises.size}",
+            fontSize = FontSize.medium19,
+        )
+        TextForThisTheme(
+            text = "Следующее упражнение\n[${state.currentExercise + 1}/${state.exercises.size}] ${state.exercises[state.currentExercise].name}",
+            fontSize = FontSize.medium19,
         )
         Button(onClick = { sendIntent(TrainingIntent.StartTraining) }) {
             Text(text = "Продолжить")
@@ -273,14 +292,17 @@ internal fun PausedTrainingPane(
     sendIntent: (TrainingIntent) -> Unit
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .background(breakColor),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Пауза", color = AppTheme.colors.text)
-        Text(
-            text = "Текущее упражнение ${state.currentExercise + 1}/${state.totalExercises}",
-            color = AppTheme.colors.text
+        TextForThisTheme(text = "Пауза", fontSize = FontSize.medium19)
+        TextForThisTheme(
+            text = "Текущее упражнение\n[${state.currentExercise + 1}/${state.exercises.size}]\n${state.exercises[state.currentExercise].name}",
+
+            fontSize = FontSize.medium19,
         )
         Button(onClick = { sendIntent(TrainingIntent.StartTraining) }) {
             Text(text = "Продолжить")
@@ -352,10 +374,9 @@ private fun Timer(
                 )
             }
         }
-        Text(
+        TextForThisTheme(
             text = "$currentSecondsLeft",
-            color = AppTheme.colors.text,
-            fontSize = 20.sp
+            fontSize = FontSize.gigant,
         )
     }
 }
