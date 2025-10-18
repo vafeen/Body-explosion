@@ -30,11 +30,12 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import ru.vafeen.presentation.common.components.TextForThisTheme
 import ru.vafeen.presentation.root.NavRootIntent
 import ru.vafeen.presentation.ui.theme.AppTheme
+import ru.vafeen.presentation.ui.theme.FontSize
 
 /**
  * Главный экран тренировки, который управляет отображением различных состояний тренировки.
@@ -122,9 +123,9 @@ internal fun TrainingPane(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        Text(
+        TextForThisTheme(
             text = "Упражнение ${state.currentExercise + 1}/${state.totalExercises}",
-            color = AppTheme.colors.text
+            fontSize = FontSize.medium19
         )
         Timer(
             modifier = Modifier.size(100.dp),
@@ -156,7 +157,7 @@ internal fun PauseAndStopExercise(
         Button(onClick = { sendIntent(TrainingIntent.PauseTraining) }) {
             Text(text = "Пауза")
         }
-        Text(
+        TextForThisTheme(
             text = "Стоп", modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))
                 .border(
@@ -174,7 +175,8 @@ internal fun PauseAndStopExercise(
                         )
                     }
                 )
-                .padding(10.dp))
+                .padding(10.dp),
+            fontSize = FontSize.medium19)
 
     }
 }
@@ -213,16 +215,16 @@ internal fun BreakPane(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        Text(
+        TextForThisTheme(
             text = "Отдых",
-            color = AppTheme.colors.text
+            fontSize = FontSize.medium19,
         )
-        Text(
+        TextForThisTheme(
             text = "Упражнений сделано ${state.currentExercise + 1}/${state.totalExercises}",
-            color = AppTheme.colors.text
+            fontSize = FontSize.medium19,
         )
         Timer(
-            modifier = Modifier.size(100.dp),
+            modifier = Modifier.size(200.dp),
             currentSecondsLeft = state.secondsLeft,
             totalSeconds = state.secondsForBreak,
             backgroundArcColor = AppTheme.colors.defaultButtonColor,
@@ -249,10 +251,10 @@ internal fun PausedBreakPane(
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Пауза", color = AppTheme.colors.text)
-        Text(
+        TextForThisTheme(text = "Пауза", fontSize = FontSize.medium19)
+        TextForThisTheme(
             text = "Упражнений сделано ${state.currentExercise + 1}/${state.totalExercises}",
-            color = AppTheme.colors.text
+            fontSize = FontSize.medium19,
         )
         Button(onClick = { sendIntent(TrainingIntent.StartTraining) }) {
             Text(text = "Продолжить")
@@ -277,10 +279,10 @@ internal fun PausedTrainingPane(
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Пауза", color = AppTheme.colors.text)
-        Text(
+        TextForThisTheme(text = "Пауза", fontSize = FontSize.medium19)
+        TextForThisTheme(
             text = "Текущее упражнение ${state.currentExercise + 1}/${state.totalExercises}",
-            color = AppTheme.colors.text
+            fontSize = FontSize.medium19,
         )
         Button(onClick = { sendIntent(TrainingIntent.StartTraining) }) {
             Text(text = "Продолжить")
@@ -352,10 +354,9 @@ private fun Timer(
                 )
             }
         }
-        Text(
+        TextForThisTheme(
             text = "$currentSecondsLeft",
-            color = AppTheme.colors.text,
-            fontSize = 20.sp
+            fontSize = FontSize.big22,
         )
     }
 }
