@@ -18,6 +18,13 @@ import ru.vafeen.domain.models.Training
 import ru.vafeen.presentation.common.utils.getAppVersion
 import javax.inject.Inject
 
+/**
+ * ViewModel для экрана настроек.
+ *
+ * @property trainingLocalRepository Репозиторий для работы с тренировками в локальной базе данных.
+ * @property settingsManager Менеджер для работы с настройками приложения.
+ * @param context Контекст приложения.
+ */
 @HiltViewModel
 internal class SettingsViewModel @Inject constructor(
     private val trainingLocalRepository: TrainingLocalRepository,
@@ -29,7 +36,16 @@ internal class SettingsViewModel @Inject constructor(
     private val _state = MutableStateFlow(
         SettingsState(appVersion = application.getAppVersion())
     )
+
+    /**
+     * Состояние экрана настроек.
+     */
     val state = _state.asStateFlow()
+
+    /**
+     * Обрабатывает намерения пользователя.
+     * @param intent Намерение пользователя.
+     */
     fun handleIntent(intent: SettingsIntent) {
         viewModelScope.launch(Dispatchers.IO) {
             when (intent) {
@@ -63,9 +79,16 @@ internal class SettingsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Обновляет тренировку в локальной базе данных.
+     * @param training Тренировка для обновления.
+     */
     private suspend fun updateTraining(training: Training) =
         trainingLocalRepository.insert(listOf(training))
 
+    /**
+     * Сбрасывает длительность упражнения и перерыва к значениям по умолчанию.
+     */
     private fun resetDuration() = settingsManager.save {
         it.copy(
             exerciseDurationSeconds = it.defaultExerciseDurationSeconds,
@@ -73,6 +96,10 @@ internal class SettingsViewModel @Inject constructor(
         )
     }
 
+    /**
+     * Обновляет настройки приложения.
+     * @param updating Лямбда-выражение, которое принимает текущие настройки и возвращает обновленные.
+     */
     private fun updateSettings(updating: (Settings) -> Settings) = settingsManager.save(updating)
 
 

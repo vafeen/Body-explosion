@@ -1,5 +1,6 @@
 package ru.vafeen.presentation.features.training
 
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,9 +28,12 @@ import kotlin.concurrent.withLock
 
 
 /**
- * ViewModel для экрана тренировки, управляющая состоянием и логикой таймера.
+ * ViewModel для экрана тренировки.
+ * Управляет состоянием экрана, логикой таймера и взаимодействием с репозиториями.
  *
- * @property state Поток текущего состояния экрана тренировки.
+ * @param sendRootIntent Функция для отправки навигационных интентов.
+ * @param trainingLocalRepository Репозиторий для доступа к данным о тренировках.
+ * @param settingsManager Менеджер для доступа к настройкам приложения.
  */
 @HiltViewModel(assistedFactory = TrainingViewModel.Factory::class)
 internal class TrainingViewModel @AssistedInject constructor(
@@ -38,12 +42,20 @@ internal class TrainingViewModel @AssistedInject constructor(
     private val settingsManager: SettingsManager,
 ) : ViewModel() {
     private val settings = settingsManager.settingsFlow.value
-    private var SECONDS_FOR_EXERCISE = settings.exerciseDurationSeconds
-    private var SECONDS_FOR_BREAK = settings.breakDurationSeconds
+    private var SECONDS_FOR_EXERCISE = 10 //settings.exerciseDurationSeconds
+    private var SECONDS_FOR_BREAK = 10 //settings.breakDurationSeconds
     private var exercises = listOf<Training>()
     private val _state = MutableStateFlow<TrainingState>(TrainingState.NotStarted)
+
+    /**
+     * Поток, содержащий текущее состояние экрана тренировки.
+     */
     val state = _state.asStateFlow()
     private val _effects = MutableSharedFlow<TrainingEffect>()
+
+    /**
+     * Поток для отправки одноразовых событий (эффектов) на UI.
+     */
     val effects = _effects.asSharedFlow()
 
     private val timerMutex = ReentrantLock()
@@ -52,8 +64,8 @@ internal class TrainingViewModel @AssistedInject constructor(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             settingsManager.settingsFlow.collect { settings ->
-                SECONDS_FOR_EXERCISE = settings.exerciseDurationSeconds
-                SECONDS_FOR_BREAK = settings.breakDurationSeconds
+//                SECONDS_FOR_EXERCISE = settings.exerciseDurationSeconds
+//                SECONDS_FOR_BREAK = settings.breakDurationSeconds
             }
         }
     }
@@ -76,8 +88,9 @@ internal class TrainingViewModel @AssistedInject constructor(
             )
             val trainings = trainingLocalRepository.getAllTrainings().first()
             if (trainings.isEmpty()) trainingLocalRepository.insert(trainings = defaultTrainings)
-            trainingLocalRepository.getAllTrainings().collect {
-                exercises = it
+            trainingLocalRepository.getAllTrainings().collect { trainings ->
+                exercises = trainings.filter { it.isIncludedToTraining }
+                Log.d("collect", "${exercises.size}")
             }
         }
     }
@@ -99,9 +112,15 @@ internal class TrainingViewModel @AssistedInject constructor(
         }
     }
 
+    /**
+     * Отправляет интент для перехода на экран настроек.
+     */
     private fun navigateToSettings() =
         sendRootIntent(NavRootIntent.NavigateTo(Screen.Settings))
 
+    /**
+     * Отправляет эффект для отображения Toast-сообщения.
+     */
     private suspend fun showToast(message: String) =
         _effects.emit(TrainingEffect.ShowToast(message, Toast.LENGTH_SHORT))
 
@@ -190,6 +209,9 @@ internal class TrainingViewModel @AssistedInject constructor(
         }
     }
 
+    /**
+     * Безопасно останавливает корутину таймера.
+     */
     private suspend fun stopTimer() = timerMutex.withLock {
         trainingJob?.cancel()
         trainingJob = null
@@ -231,8 +253,15 @@ internal class TrainingViewModel @AssistedInject constructor(
         }
     }
 
+    /**
+     * Фабрика для создания экземпляра [TrainingViewModel] с помощью Assisted Injection.
+     */
     @AssistedFactory
     interface Factory {
+        /**
+         * Создает экземпляр [TrainingViewModel].
+         * @param sendRootIntent Функция для отправки навигационных интентов.
+         */
         fun create(sendRootIntent: (NavRootIntent) -> Unit): TrainingViewModel
     }
 }

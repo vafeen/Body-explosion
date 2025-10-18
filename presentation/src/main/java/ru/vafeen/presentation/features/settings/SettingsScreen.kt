@@ -18,6 +18,11 @@ import ru.vafeen.presentation.common.components.TrainingString
 import ru.vafeen.presentation.ui.theme.FontSize
 
 
+/**
+ * Экран настроек.
+ *
+ * @param viewModel Модель представления для экрана настроек.
+ */
 @Composable
 internal fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
