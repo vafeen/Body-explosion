@@ -33,6 +33,7 @@ internal class SettingsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             when (intent) {
                 is SettingsIntent.UpdateSettings -> updateSettings(intent.updating)
+                SettingsIntent.ResetDuration -> resetDuration()
             }
         }
     }
@@ -42,12 +43,19 @@ internal class SettingsViewModel @Inject constructor(
             settingsManager.settingsFlow.collect {
                 _state.update { state ->
                     state.copy(
-                        exerciseDurationMillis = it.exerciseDurationMillis,
-                        breakDurationMillis = it.breakDurationMillis
+                        exerciseDurationSeconds = it.exerciseDurationSeconds,
+                        breakDurationSeconds = it.breakDurationSeconds,
                     )
                 }
             }
         }
+    }
+
+    private fun resetDuration() = settingsManager.save {
+        it.copy(
+            exerciseDurationSeconds = it.defaultExerciseDurationSeconds,
+            breakDurationSeconds = it.defaultBreakDurationSeconds
+        )
     }
 
     private fun updateSettings(updating: (Settings) -> Settings) = settingsManager.save(updating)

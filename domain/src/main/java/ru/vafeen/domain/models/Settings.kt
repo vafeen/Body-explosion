@@ -1,12 +1,10 @@
 package ru.vafeen.domain.models
 
-interface SettingsModel {
-    val exerciseDurationMillis: Long
-    val breakDurationMillis: Long
-}
 
 data class Settings(
-    override val exerciseDurationMillis: Long,
-    override val breakDurationMillis: Long,
-) : SettingsModel
+    val defaultExerciseDurationSeconds: Int,
+    val defaultBreakDurationSeconds: Int,
+    val exerciseDurationSeconds: Int,
+    val breakDurationSeconds: Int,
+)
 

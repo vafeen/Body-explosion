@@ -27,23 +27,35 @@ internal fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             fontSize = FontSize.big22
         )
         state.let {
-            if (it.exerciseDurationMillis != null && it.breakDurationMillis != null) {
+            if (it.exerciseDurationSeconds != null && it.breakDurationSeconds != null) {
                 TextForThisTheme(
                     modifier = Modifier.clickable {
                         viewModel.handleIntent(SettingsIntent.UpdateSettings { settings ->
-                            settings.copy(exerciseDurationMillis = settings.exerciseDurationMillis + 1)
+                            settings.copy(exerciseDurationSeconds = settings.exerciseDurationSeconds + 1)
                         })
                     },
-                    text = "exerciseDurationMillis=${it.exerciseDurationMillis}",
+                    text = "exerciseDurationSeconds=${it.exerciseDurationSeconds}",
                     fontSize = FontSize.medium19
                 )
                 TextForThisTheme(
                     modifier = Modifier.clickable {
                         viewModel.handleIntent(SettingsIntent.UpdateSettings { settings ->
-                            settings.copy(breakDurationMillis = settings.breakDurationMillis + 1)
+                            settings.copy(breakDurationSeconds = settings.breakDurationSeconds + 1)
                         })
                     },
-                    text = "breakDurationMillis=${it.breakDurationMillis}",
+                    text = "breakDurationSeconds=${it.breakDurationSeconds}",
+                    fontSize = FontSize.medium19
+                )
+                TextForThisTheme(
+                    modifier = Modifier.clickable {
+                        viewModel.handleIntent(SettingsIntent.UpdateSettings { settings ->
+                            settings.copy(
+                                breakDurationSeconds = 10,
+                                exerciseDurationSeconds = 60
+                            )
+                        })
+                    },
+                    text = "reset",
                     fontSize = FontSize.medium19
                 )
             }

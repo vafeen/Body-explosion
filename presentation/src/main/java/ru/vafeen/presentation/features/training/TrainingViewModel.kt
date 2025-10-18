@@ -16,13 +16,13 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import ru.vafeen.domain.datastore.SettingsManager
 import ru.vafeen.presentation.navigation.Screen
 import ru.vafeen.presentation.root.NavRootIntent
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
-private const val SECONDS_FOR_EXERCISE = 10
-private const val SECONDS_FOR_BREAK = 10
+
 private const val TOTAL_EXERCISES = 10
 
 /**
@@ -33,14 +33,27 @@ private const val TOTAL_EXERCISES = 10
 @HiltViewModel(assistedFactory = TrainingViewModel.Factory::class)
 internal class TrainingViewModel @AssistedInject constructor(
     @Assisted private val sendRootIntent: (NavRootIntent) -> Unit,
+    private val settingsManager: SettingsManager,
 ) : ViewModel() {
+    private val settings = settingsManager.settingsFlow.value
+    private var SECONDS_FOR_EXERCISE = settings.exerciseDurationSeconds
+    private var SECONDS_FOR_BREAK = settings.breakDurationSeconds
     private val _state = MutableStateFlow<TrainingState>(TrainingState.NotStarted)
     val state = _state.asStateFlow()
     private val _effects = MutableSharedFlow<TrainingEffect>()
     val effects = _effects.asSharedFlow()
 
-    private val timerMutex = Mutex()
+    private val timerMutex = ReentrantLock()
     private var trainingJob: Job? = null
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsManager.settingsFlow.collect { settings ->
+                SECONDS_FOR_EXERCISE = settings.exerciseDurationSeconds
+                SECONDS_FOR_BREAK = settings.breakDurationSeconds
+            }
+        }
+    }
 
     /**
      * Обрабатывает намерения пользователя, запуская, приостанавливая или останавливая тренировку.
