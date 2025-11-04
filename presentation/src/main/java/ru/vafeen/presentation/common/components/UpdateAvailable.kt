@@ -18,8 +18,8 @@ import ru.vafeen.domain.models.Release
 import ru.vafeen.presentation.R
 import ru.vafeen.presentation.common.utils.bytesToMBytes
 import ru.vafeen.presentation.common.utils.roundToOneDecimal
+import ru.vafeen.presentation.ui.theme.Colors
 import ru.vafeen.presentation.ui.theme.FontSize
-import ru.vafeen.presentation.ui.theme.updateAvailableColor
 
 @Composable
 internal fun UpdateAvailable(
@@ -29,7 +29,7 @@ internal fun UpdateAvailable(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(updateAvailableColor)
+            .background(Colors.updateAvailableColor)
             .clickable(onClick = onClick)
             .padding(vertical = 5.dp),
         horizontalArrangement = Arrangement.Absolute.SpaceEvenly
