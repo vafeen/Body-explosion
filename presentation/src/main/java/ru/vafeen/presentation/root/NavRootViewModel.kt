@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.vafeen.domain.local_database.TrainingLocalRepository
 import ru.vafeen.domain.models.Release
 import ru.vafeen.domain.network.result.DownloadStatus
 import ru.vafeen.domain.network.result.ResponseResult
@@ -26,7 +25,6 @@ import javax.inject.Inject
 @HiltViewModel
 internal class NavRootViewModel @Inject constructor(
     @ApplicationContext context: Context,
-    private val trainingLocalRepository: TrainingLocalRepository,
     private val releaseRepository: ReleaseRepository,
     private val refresher: Refresher,
 ) : ViewModel() {

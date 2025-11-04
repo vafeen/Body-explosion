@@ -17,6 +17,10 @@ internal class RoomTrainingLocalRepository @Inject constructor(
     private val db: AppDatabase
 ) : TrainingLocalRepository {
     private val trainingDao = db.trainingDao()
+
+    /**
+     * {@inheritDoc}
+     */
     override fun getAllTrainings(): Flow<List<Training>> =
         trainingDao.getAll().map { list ->
             list.map {
@@ -24,6 +28,9 @@ internal class RoomTrainingLocalRepository @Inject constructor(
             }.sortedBy { it.id }
         }
 
+    /**
+     * {@inheritDoc}
+     */
     override suspend fun insert(trainings: List<Training>) =
         trainingDao.insert(entities = trainings.map { it.toTrainingEntity() })
 
