@@ -1,6 +1,8 @@
 package ru.vafeen.presentation.features.training
 
+import androidx.compose.ui.graphics.Color
 import ru.vafeen.domain.models.Training
+import ru.vafeen.presentation.ui.theme.Colors
 
 /**
  * Представляет состояния экрана тренировки.
@@ -24,6 +26,7 @@ internal sealed interface TrainingState {
         val secondsOnOneExercise: Int,
         val currentExercise: Int,
         val exercises: List<Training>,
+        val color: Color = Colors.exerciseColor
     ) : TrainingState
 
     /**
@@ -39,6 +42,7 @@ internal sealed interface TrainingState {
         val secondsForBreak: Int,
         val nextExercise: Int,
         val exercises: List<Training>,
+        val color: Color = Colors.breakColor
     ) : TrainingState
 
     /**
@@ -52,6 +56,7 @@ internal sealed interface TrainingState {
         val secondsLeft: Int,
         val currentExercise: Int,
         val exercises: List<Training>,
+        val color: Color = Colors.breakColor
     ) : TrainingState
 
     /**
@@ -65,5 +70,6 @@ internal sealed interface TrainingState {
         val secondsLeft: Int,
         val nextExercise: Int,
         val exercises: List<Training>,
+        val color: Color = Colors.breakColor
     ) : TrainingState
 }

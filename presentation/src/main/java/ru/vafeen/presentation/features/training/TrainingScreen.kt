@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,11 +35,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.vafeen.presentation.common.components.TextForThisTheme
+import ru.vafeen.presentation.common.icons.Icons
 import ru.vafeen.presentation.root.NavRootIntent
 import ru.vafeen.presentation.ui.theme.AppTheme
+import ru.vafeen.presentation.ui.theme.Colors
 import ru.vafeen.presentation.ui.theme.FontSize
-import ru.vafeen.presentation.ui.theme.breakColor
-import ru.vafeen.presentation.ui.theme.exerciseColor
 
 /**
  * Главный экран тренировки, который управляет отображением различных состояний тренировки.
@@ -66,14 +68,28 @@ internal fun TrainingScreen(
             }
         }
     }
-    Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            Button(onClick = { viewModel.handleIntent(TrainingIntent.NavigateToSettings) }) {
-                Text("navigateToSettings")
-            }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                when (state) {
+                    is TrainingState.InProgress -> Colors.exerciseColor
+                    is TrainingState.Break, is TrainingState.PausedBreak, is TrainingState.PausedTraining -> Colors.breakColor
+                    else -> AppTheme.colors.background
+                }
+            )
+    ) {
+        IconButton(
+            modifier = Modifier
+                .align(Alignment.End),
+            onClick = { viewModel.handleIntent(TrainingIntent.NavigateToSettings) }) {
+            Icon(
+                modifier = Modifier,
+                imageVector = Icons.Settings,
+                contentDescription = "Settings",
+                tint = AppTheme.colors.text
+            )
         }
         when (val currentState = state) {
             is TrainingState.NotStarted -> NotStartedPane(
@@ -122,8 +138,7 @@ internal fun TrainingPane(
 ) {
     Column(
         modifier = modifier
-            .fillMaxWidth()
-            .background(exerciseColor),
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -216,8 +231,7 @@ internal fun BreakPane(
 ) {
     Column(
         modifier = modifier
-            .fillMaxWidth()
-            .background(breakColor),
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -259,8 +273,7 @@ internal fun PausedBreakPane(
 ) {
     Column(
         modifier = modifier
-            .fillMaxWidth()
-            .background(breakColor),
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -293,8 +306,7 @@ internal fun PausedTrainingPane(
 ) {
     Column(
         modifier = modifier
-            .fillMaxWidth()
-            .background(breakColor),
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
