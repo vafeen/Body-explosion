@@ -1,6 +1,6 @@
 package ru.vafeen.presentation.features.training
 
-import android.util.Log
+import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +8,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -21,25 +22,31 @@ import kotlinx.coroutines.launch
 import ru.vafeen.domain.datastore.SettingsManager
 import ru.vafeen.domain.local_database.TrainingLocalRepository
 import ru.vafeen.domain.models.Training
+import ru.vafeen.domain.service.MusicPlayer
 import ru.vafeen.presentation.navigation.Screen
 import ru.vafeen.presentation.root.NavRootIntent
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-
 /**
  * ViewModel для экрана тренировки.
  * Управляет состоянием экрана, логикой таймера и взаимодействием с репозиториями.
+ * Жизненный цикл [MusicPlayer] управляется вручную для оптимизации ресурсов:
+ * плеер инициализируется при старте тренировки и освобождается при ее завершении.
  *
+ * @param context Контекст приложения, используемый для инициализации [MusicPlayer].
  * @param sendRootIntent Функция для отправки навигационных интентов.
  * @param trainingLocalRepository Репозиторий для доступа к данным о тренировках.
  * @param settingsManager Менеджер для доступа к настройкам приложения.
+ * @param musicPlayer Экземпляр плеера для управления воспроизведением музыки.
  */
 @HiltViewModel(assistedFactory = TrainingViewModel.Factory::class)
 internal class TrainingViewModel @AssistedInject constructor(
+    @ApplicationContext context: Context,
     @Assisted private val sendRootIntent: (NavRootIntent) -> Unit,
     private val trainingLocalRepository: TrainingLocalRepository,
     private val settingsManager: SettingsManager,
+    private val musicPlayer: MusicPlayer
 ) : ViewModel() {
     private val settings = settingsManager.settingsFlow.value
     private var secondsForExercise = settings.exerciseDurationSeconds
@@ -47,15 +54,9 @@ internal class TrainingViewModel @AssistedInject constructor(
     private var exercises = listOf<Training>()
     private val _state = MutableStateFlow<TrainingState>(TrainingState.NotStarted)
 
-    /**
-     * Поток, содержащий текущее состояние экрана тренировки.
-     */
     val state = _state.asStateFlow()
     private val _effects = MutableSharedFlow<TrainingEffect>()
 
-    /**
-     * Поток для отправки одноразовых событий (эффектов) на UI.
-     */
     val effects = _effects.asSharedFlow()
 
     private val timerMutex = ReentrantLock()
@@ -79,18 +80,17 @@ internal class TrainingViewModel @AssistedInject constructor(
                 Training(4, "Отжимания", true),
                 Training(5, "Складка", true),
                 Training(6, "Планка", true),
-                Training(7, "Круги", false),      // было "Круги??" → исключено из тренировки
+                Training(7, "Круги", false),
                 Training(8, "Рукоход", true),
                 Training(9, "Разгибания", true),
                 Training(10, "Лесенка", true),
                 Training(11, "Лодочка", true),
-                Training(12, "Флажок", false)     // было "Флажок??" → исключено из тренировки
+                Training(12, "Флажок", false)
             )
             val trainings = trainingLocalRepository.getAllTrainings().first()
             if (trainings.isEmpty()) trainingLocalRepository.insert(trainings = defaultTrainings)
             trainingLocalRepository.getAllTrainings().collect { trainings ->
                 exercises = trainings.filter { it.isIncludedToTraining }
-                Log.d("collect", "${exercises.size}")
             }
         }
     }
@@ -112,27 +112,23 @@ internal class TrainingViewModel @AssistedInject constructor(
         }
     }
 
-    /**
-     * Отправляет интент для перехода на экран настроек.
-     */
     private fun navigateToSettings() =
         sendRootIntent(NavRootIntent.NavigateTo(Screen.Settings))
 
-    /**
-     * Отправляет эффект для отображения Toast-сообщения.
-     */
     private suspend fun showToast(message: String) =
         _effects.emit(TrainingEffect.ShowToast(message, Toast.LENGTH_SHORT))
 
-
     /**
-     * Запускает или возобновляет тренировку.
-     * Если тренировка не была начата, запускает её с первого упражнения.
-     * Если была на паузе, возобновляет с сохраненного момента.
+     * Запускает или возобновляет тренировку. Инициализирует [MusicPlayer],
+     * если он не был готов. Управляет состоянием плеера в зависимости от
+     * текущего состояния тренировки.
      */
-    private suspend fun startTraining() {
+    private fun startTraining() {
         val currentState = _state.value
         if (currentState is TrainingState.InProgress) return
+        if (!musicPlayer.isInitialized()) {
+            musicPlayer.init()
+        }
 
         _state.value = when (currentState) {
             is TrainingState.PausedTraining -> TrainingState.InProgress(
@@ -140,12 +136,12 @@ internal class TrainingViewModel @AssistedInject constructor(
                 secondsOnOneExercise = secondsForExercise,
                 currentExercise = currentState.currentExercise,
                 exercises = exercises
-            )
+            ).also { musicPlayer.resume() }
 
             is TrainingState.PausedBreak -> TrainingState.Break(
                 secondsLeft = currentState.secondsLeft,
                 secondsForBreak = secondsForBreak,
-                currentExercise = currentState.currentExercise,
+                nextExercise = currentState.nextExercise,
                 exercises = exercises
             )
 
@@ -154,7 +150,7 @@ internal class TrainingViewModel @AssistedInject constructor(
                 secondsOnOneExercise = secondsForExercise,
                 currentExercise = 0,
                 exercises = exercises
-            )
+            ).also { musicPlayer.restart() }
         }
 
         startTimer()
@@ -164,7 +160,7 @@ internal class TrainingViewModel @AssistedInject constructor(
      * Запускает внутренний таймер, который обновляет состояние каждую секунду.
      * Обрабатывает переходы между состояниями InProgress и Break.
      */
-    private suspend fun startTimer() = timerMutex.withLock {
+    private fun startTimer() = timerMutex.withLock {
         trainingJob = viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
                 delay(1000)
@@ -177,10 +173,11 @@ internal class TrainingViewModel @AssistedInject constructor(
                             _state.value = currentState.copy(secondsLeft = newSeconds)
                         } else {
                             if (currentState.currentExercise < exercises.size - 1) {
+                                musicPlayer.pause()
                                 _state.value = TrainingState.Break(
                                     secondsLeft = secondsForBreak,
                                     secondsForBreak = secondsForBreak,
-                                    currentExercise = currentState.currentExercise,
+                                    nextExercise = currentState.currentExercise + 1,
                                     exercises = exercises
                                 )
                             } else {
@@ -194,10 +191,11 @@ internal class TrainingViewModel @AssistedInject constructor(
                         if (newSeconds > 0) {
                             _state.value = currentState.copy(secondsLeft = newSeconds)
                         } else {
+                            musicPlayer.restart()
                             _state.value = TrainingState.InProgress(
                                 secondsLeft = secondsForExercise,
                                 secondsOnOneExercise = secondsForExercise,
-                                currentExercise = currentState.currentExercise + 1,
+                                currentExercise = currentState.nextExercise,
                                 exercises = exercises
                             )
                         }
@@ -209,27 +207,27 @@ internal class TrainingViewModel @AssistedInject constructor(
         }
     }
 
-    /**
-     * Безопасно останавливает корутину таймера.
-     */
-    private suspend fun stopTimer() = timerMutex.withLock {
+    private fun stopTimer() = timerMutex.withLock {
         trainingJob?.cancel()
         trainingJob = null
     }
 
     /**
-     * Останавливает тренировку и сбрасывает состояние к начальному.
+     * Останавливает тренировку, сбрасывает состояние к начальному и освобождает
+     * ресурсы [MusicPlayer].
      */
-    private suspend fun stopTraining() {
+    private fun stopTraining() {
         stopTimer()
+        musicPlayer.pause()
+        musicPlayer.release()
         _state.value = TrainingState.NotStarted
     }
 
     /**
-     * Приостанавливает тренировку, если она в процессе выполнения.
-     * Сохраняет текущее состояние в Paused.
+     * Приостанавливает тренировку и воспроизведение музыки.
      */
-    private suspend fun pauseTraining() {
+    private fun pauseTraining() {
+        musicPlayer.pause()
         when (val currentState = _state.value) {
             is TrainingState.InProgress -> {
                 stopTimer()
@@ -244,7 +242,7 @@ internal class TrainingViewModel @AssistedInject constructor(
                 stopTimer()
                 _state.value = TrainingState.PausedBreak(
                     secondsLeft = currentState.secondsLeft,
-                    currentExercise = currentState.currentExercise,
+                    nextExercise = currentState.nextExercise,
                     exercises = exercises
                 )
             }
@@ -254,8 +252,14 @@ internal class TrainingViewModel @AssistedInject constructor(
     }
 
     /**
-     * Фабрика для создания экземпляра [TrainingViewModel] с помощью Assisted Injection.
+     * Освобождает ресурсы [MusicPlayer] при уничтожении ViewModel.
      */
+    override fun onCleared() {
+        super.onCleared()
+        musicPlayer.release()
+    }
+
+
     @AssistedFactory
     interface Factory {
         /**

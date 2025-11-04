@@ -31,13 +31,13 @@ internal sealed interface TrainingState {
      *
      * @property secondsLeft Оставшееся время отдыха.
      * @property secondsForBreak Общее время на отдых.
-     * @property currentExercise Индекс следующего упражнения.
+     * @property nextExercise Индекс следующего упражнения.
      * @property exercises Список упражнений в тренировке.
      */
     data class Break(
         val secondsLeft: Int,
         val secondsForBreak: Int,
-        val currentExercise: Int,
+        val nextExercise: Int,
         val exercises: List<Training>,
     ) : TrainingState
 
@@ -58,12 +58,12 @@ internal sealed interface TrainingState {
      * Перерыв приостановлен.
      *
      * @property secondsLeft Оставшееся время отдыха.
-     * @property currentExercise Индекс следующего упражнения.
+     * @property nextExercise Индекс следующего упражнения.
      * @property exercises Список упражнений в тренировке.
      */
     data class PausedBreak(
         val secondsLeft: Int,
-        val currentExercise: Int,
+        val nextExercise: Int,
         val exercises: List<Training>,
     ) : TrainingState
 }
