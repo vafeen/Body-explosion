@@ -226,11 +226,11 @@ internal fun BreakPane(
             fontSize = FontSize.medium19,
         )
         TextForThisTheme(
-            text = "Упражнений сделано ${state.currentExercise + 1}/${state.exercises.size}",
+            text = "Упражнений сделано ${state.nextExercise}/${state.exercises.size}",
             fontSize = FontSize.medium19,
         )
         TextForThisTheme(
-            text = "Следующее упражнение\n${state.exercises[state.currentExercise + 1].name}",
+            text = "Следующее упражнение \n[${state.nextExercise + 1}/${state.exercises.size}]${state.exercises[state.nextExercise].name}",
             fontSize = FontSize.medium19,
         )
 
@@ -264,13 +264,13 @@ internal fun PausedBreakPane(
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TextForThisTheme(text = "Пауза", fontSize = FontSize.medium19)
+        TextForThisTheme(text = "Пауза отдыха", fontSize = FontSize.medium19)
         TextForThisTheme(
-            text = "Упражнений сделано ${state.currentExercise + 1}/${state.exercises.size}",
+            text = "Упражнений сделано ${state.nextExercise}/${state.exercises.size}",
             fontSize = FontSize.medium19,
         )
         TextForThisTheme(
-            text = "Следующее упражнение\n[${state.currentExercise + 1}/${state.exercises.size}] ${state.exercises[state.currentExercise].name}",
+            text = "Следующее упражнение\n[${state.nextExercise + 1}/${state.exercises.size}] ${state.exercises[state.nextExercise].name}",
             fontSize = FontSize.medium19,
         )
         Button(onClick = { sendIntent(TrainingIntent.StartTraining) }) {
@@ -298,9 +298,9 @@ internal fun PausedTrainingPane(
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TextForThisTheme(text = "Пауза", fontSize = FontSize.medium19)
+        TextForThisTheme(text = "Пауза тренировки", fontSize = FontSize.medium19)
         TextForThisTheme(
-            text = "Текущее упражнение\n[${state.currentExercise + 1}/${state.exercises.size}]\n${state.exercises[state.currentExercise].name}",
+            text = "Текущее упражнение\n[${state.currentExercise + 1}/${state.exercises.size}]${state.exercises[state.currentExercise].name}",
 
             fontSize = FontSize.medium19,
         )

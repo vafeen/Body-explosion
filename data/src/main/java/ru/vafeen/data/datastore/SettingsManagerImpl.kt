@@ -22,32 +22,28 @@ import javax.inject.Inject
 internal class SettingsManagerImpl @Inject constructor(private val sharedPreferences: SharedPreferences) :
     SettingsManager {
 
-    /**
-     * Внутренний StateFlow для отслеживания изменений настроек.
-     */
     private val _settingsFlow =
         MutableStateFlow(sharedPreferences.getSettingsOrCreateIfNull().toSettings())
 
     /**
-     * Публичный [StateFlow] для подписки на изменения настроек.
-     * С помощью этого потока можно получать уведомления об обновлениях настроек.
+     * {@inheritDoc}
+     *
+     * Этот поток предоставляет немедленный доступ к последней версии настроек и уведомляет
+     * подписчиков о любых обновлениях, сделанных через метод [save].
      */
     override val settingsFlow: StateFlow<Settings> = _settingsFlow.asStateFlow()
 
     /**
-     * Сохраняет настройки, применяя функцию преобразования к текущим настройкам.
-     * Обновленные настройки сохраняются в [SharedPreferences] и автоматически передаются
-     * подписчикам через [StateFlow].
+     * {@inheritDoc}
      *
-     * @param saving Функция, которая принимает текущие настройки и возвращает обновленные.
+     * Обновленные настройки сохраняются в [SharedPreferences] и автоматически передаются
+     * подписчикам через [settingsFlow]. Метод является потокобезопасным благодаря
+     * аннотации [@Synchronized].
      */
     @Synchronized
     override fun save(saving: (Settings) -> Settings) {
-        // Обновляем настройки в памяти
         val newSettings = saving(_settingsFlow.value)
-        // Сохраняем обновленные настройки в SharedPreferences
         saveSettingsToSharedPreferences(newSettings.toDataStoreSettings())
-        // Обновляем flow
         _settingsFlow.update { newSettings }
     }
 
@@ -90,8 +86,8 @@ internal class SettingsManagerImpl @Inject constructor(private val sharedPrefere
      */
     private fun SharedPreferences.saveInOrRemoveFromSharedPreferences(save: SharedPreferences.Editor.() -> Unit) {
         edit().apply {
-            save() // Выполнение переданного блока.
-            apply() // Применение изменений.
+            save()
+            apply()
         }
     }
 
