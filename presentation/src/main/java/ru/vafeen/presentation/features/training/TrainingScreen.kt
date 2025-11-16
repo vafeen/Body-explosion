@@ -32,8 +32,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import ru.vafeen.presentation.R
 import ru.vafeen.presentation.common.components.TextForThisTheme
 import ru.vafeen.presentation.common.icons.Icons
 import ru.vafeen.presentation.root.NavRootIntent
@@ -87,7 +89,7 @@ internal fun TrainingScreen(
             Icon(
                 modifier = Modifier,
                 imageVector = Icons.Settings,
-                contentDescription = "Settings",
+                contentDescription = stringResource(R.string.settings),
                 tint = AppTheme.colors.text
             )
         }
@@ -143,7 +145,7 @@ internal fun TrainingPane(
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         TextForThisTheme(
-            text = "Текущее упражнение\n[${state.currentExercise + 1}/${state.exercises.size}] ${state.exercises[state.currentExercise].name}",
+            text = "${stringResource(id = R.string.current_exercise)}\n[${state.currentExercise + 1}/${state.exercises.size}] ${state.exercises[state.currentExercise].name}",
             fontSize = FontSize.medium19,
         )
         Timer(
@@ -168,16 +170,17 @@ internal fun PauseAndStopExercise(
     modifier: Modifier = Modifier,
     sendIntent: (TrainingIntent) -> Unit
 ) {
+    val context = LocalContext.current
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Button(onClick = { sendIntent(TrainingIntent.PauseTraining) }) {
-            Text(text = "Пауза")
+            Text(text = stringResource(R.string.pause))
         }
         TextForThisTheme(
-            text = "Стоп", modifier = Modifier
+            text = stringResource(R.string.finish), modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))
                 .border(
                     border = BorderStroke(1.dp, AppTheme.colors.text),
@@ -188,7 +191,7 @@ internal fun PauseAndStopExercise(
                     onClick = {
                         sendIntent(
                             TrainingIntent.ShowToast(
-                                message = "long tap please",
+                                message = context.getString(R.string.long_tap_please),
                                 duration = Toast.LENGTH_SHORT
                             )
                         )
@@ -236,15 +239,15 @@ internal fun BreakPane(
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         TextForThisTheme(
-            text = "Отдых",
+            text = stringResource(id = R.string.rest),
             fontSize = FontSize.medium19,
         )
         TextForThisTheme(
-            text = "Упражнений сделано ${state.nextExercise}/${state.exercises.size}",
+            text = "${stringResource(id = R.string.exercises_done)} ${state.nextExercise}/${state.exercises.size}",
             fontSize = FontSize.medium19,
         )
         TextForThisTheme(
-            text = "Следующее упражнение \n[${state.nextExercise + 1}/${state.exercises.size}]${state.exercises[state.nextExercise].name}",
+            text = "${stringResource(id = R.string.next_exercise)} \n[${state.nextExercise + 1}/${state.exercises.size}]${state.exercises[state.nextExercise].name}",
             fontSize = FontSize.medium19,
         )
 
@@ -277,17 +280,24 @@ internal fun PausedBreakPane(
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TextForThisTheme(text = "Пауза отдыха", fontSize = FontSize.medium19)
         TextForThisTheme(
-            text = "Упражнений сделано ${state.nextExercise}/${state.exercises.size}",
+            text = stringResource(id = R.string.rest_pause),
+            fontSize = FontSize.medium19
+        )
+        TextForThisTheme(
+            text = stringResource(
+                id = R.string.exercises_done,
+                state.nextExercise,
+                state.exercises.size
+            ),
             fontSize = FontSize.medium19,
         )
         TextForThisTheme(
-            text = "Следующее упражнение\n[${state.nextExercise + 1}/${state.exercises.size}] ${state.exercises[state.nextExercise].name}",
+            text = "${stringResource(id = R.string.next_exercise)}\n[${state.nextExercise + 1}/${state.exercises.size}] ${state.exercises[state.nextExercise].name}",
             fontSize = FontSize.medium19,
         )
         Button(onClick = { sendIntent(TrainingIntent.StartTraining) }) {
-            Text(text = "Продолжить")
+            Text(text = stringResource(id = R.string.continue_button))
         }
     }
 }
@@ -310,14 +320,17 @@ internal fun PausedTrainingPane(
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TextForThisTheme(text = "Пауза тренировки", fontSize = FontSize.medium19)
         TextForThisTheme(
-            text = "Текущее упражнение\n[${state.currentExercise + 1}/${state.exercises.size}]${state.exercises[state.currentExercise].name}",
+            text = stringResource(id = R.string.training_pause),
+            fontSize = FontSize.medium19
+        )
+        TextForThisTheme(
+            text = "${stringResource(id = R.string.current_exercise)}\n[${state.currentExercise + 1}/${state.exercises.size}]${state.exercises[state.currentExercise].name}",
 
             fontSize = FontSize.medium19,
         )
         Button(onClick = { sendIntent(TrainingIntent.StartTraining) }) {
-            Text(text = "Продолжить")
+            Text(text = stringResource(id = R.string.continue_button))
         }
     }
 }
@@ -330,7 +343,7 @@ internal fun PausedTrainingPane(
 @Composable
 private fun StartButton(onClick: () -> Unit) {
     Button(onClick) {
-        Text(text = "Начать тренировку")
+        Text(text = stringResource(id = R.string.start_training))
     }
 }
 
