@@ -1,10 +1,12 @@
 package ru.vafeen.domain.models
 
+import java.time.LocalTime
+
 
 data class Settings(
-    val defaultExerciseDurationSeconds: Int,
-    val defaultBreakDurationSeconds: Int,
-    val exerciseDurationSeconds: Int,
-    val breakDurationSeconds: Int,
+    val defaultExerciseDuration: LocalTime,
+    val defaultBreakDuration: LocalTime,
+    val exerciseDuration: LocalTime,
+    val breakDuration: LocalTime,
 )
 

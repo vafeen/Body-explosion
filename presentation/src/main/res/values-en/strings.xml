@@ -15,4 +15,12 @@
     <string name="exercises_done">Exercises done</string>
     <string name="current_exercise">Current exercise</string>
     <string name="next_exercise">Next exercise</string>
+    <string name="icon_open_section">Open section</string>
+    <string name="time_of_exercise">Exercise time</string>
+    <string name="time_of_break">Break time</string>
+    <string name="minutes">Minutes</string>
+    <string name="seconds">Seconds</string>
+    <string name="close">Close</string>
+    <string name="reset">Reset</string>
+    <string name="apply">Apply</string>
 </resources>
