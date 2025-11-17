@@ -12,5 +12,5 @@ data class Release(
     val tagName: String,
     val apkUrl: String,
     val size: Long,
-    val body: String
+    val body: String?
 )
