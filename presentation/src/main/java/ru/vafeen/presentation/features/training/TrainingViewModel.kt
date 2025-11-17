@@ -49,8 +49,8 @@ internal class TrainingViewModel @AssistedInject constructor(
     private val musicPlayer: MusicPlayer
 ) : ViewModel() {
     private val settings = settingsManager.settingsFlow.value
-    private var secondsForExercise = settings.exerciseDurationSeconds
-    private var secondsForBreak = settings.breakDurationSeconds
+    private var secondsForExercise = settings.exerciseDuration.toSecondOfDay()
+    private var secondsForBreak = settings.breakDuration.toSecondOfDay()
     private var exercises = listOf<Training>()
     private val _state = MutableStateFlow<TrainingState>(TrainingState.NotStarted)
 
@@ -65,8 +65,8 @@ internal class TrainingViewModel @AssistedInject constructor(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             settingsManager.settingsFlow.collect { settings ->
-                secondsForExercise = settings.exerciseDurationSeconds
-                secondsForBreak = settings.breakDurationSeconds
+                secondsForExercise = settings.exerciseDuration.toSecondOfDay()
+                secondsForBreak = settings.breakDuration.toSecondOfDay()
             }
         }
     }

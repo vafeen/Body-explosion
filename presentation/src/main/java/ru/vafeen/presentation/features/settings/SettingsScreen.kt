@@ -1,6 +1,5 @@
 package ru.vafeen.presentation.features.settings
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,8 +10,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import ru.vafeen.presentation.R
+import ru.vafeen.presentation.common.components.SettingsTabWithTimePicker
 import ru.vafeen.presentation.common.components.TextForThisTheme
 import ru.vafeen.presentation.common.components.TrainingString
 import ru.vafeen.presentation.ui.theme.FontSize
@@ -38,44 +40,47 @@ internal fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             fontSize = FontSize.big22
         )
         state.let {
-            if (it.exerciseDurationSeconds != null && it.breakDurationSeconds != null) {
-                TextForThisTheme(
-                    modifier = Modifier.clickable {
-                        viewModel.handleIntent(SettingsIntent.UpdateSettings { settings ->
-                            settings.copy(exerciseDurationSeconds = settings.exerciseDurationSeconds + 1)
-                        })
+            if (it.exerciseDuration != null && it.tempExerciseDuration != null) {
+                SettingsTabWithTimePicker(
+                    time = it.exerciseDuration,
+                    timeToChangeInDialog = it.tempExerciseDuration,
+                    isTimePickerShowed = it.isExerciseDurationDialogShowed,
+                    description = stringResource(R.string.time_of_exercise),
+                    switchTimePickerIsShowed = {
+                        viewModel.handleIntent(SettingsIntent.SwitchExerciseDurationDialogIsShowed)
                     },
-                    text = "exerciseDurationSeconds=${it.exerciseDurationSeconds}",
-                    fontSize = FontSize.medium19
-                )
-                TextForThisTheme(
-                    modifier = Modifier.clickable {
-                        viewModel.handleIntent(SettingsIntent.UpdateSettings { settings ->
-                            settings.copy(breakDurationSeconds = settings.breakDurationSeconds + 1)
-                        })
+                    updateTime = { newTime ->
+                        viewModel.handleIntent(SettingsIntent.UpdateTempExerciseDuration(newTime))
                     },
-                    text = "breakDurationSeconds=${it.breakDurationSeconds}",
-                    fontSize = FontSize.medium19
+                    applyTime = { viewModel.handleIntent(SettingsIntent.ApplyExerciseDuration) },
+                    resetTime = { viewModel.handleIntent(SettingsIntent.ResetExerciseDuration) }
                 )
-                TextForThisTheme(
-                    modifier = Modifier.clickable {
-                        viewModel.handleIntent(SettingsIntent.UpdateSettings { settings ->
-                            settings.copy(
-                                breakDurationSeconds = 10,
-                                exerciseDurationSeconds = 60
-                            )
-                        })
-                    },
-                    text = "reset",
-                    fontSize = FontSize.medium19
-                )
+            }
 
-                it.trainings.forEach { training ->
-                    training.TrainingString {
-                        viewModel.handleIntent(SettingsIntent.UpdateTraining(it))
-                    }
+            if (it.breakDuration != null && it.tempBreakDuration != null) {
+                SettingsTabWithTimePicker(
+                    time = it.breakDuration,
+                    timeToChangeInDialog = it.tempBreakDuration,
+                    isTimePickerShowed = it.isBreakDurationDialogShowed,
+                    description = stringResource(R.string.time_of_break),
+                    switchTimePickerIsShowed = {
+                        viewModel.handleIntent(SettingsIntent.SwitchBreakDurationDialogIsShowed)
+                    },
+                    updateTime = { newTime ->
+                        viewModel.handleIntent(SettingsIntent.UpdateTempBreakDuration(newTime))
+                    },
+                    applyTime = { viewModel.handleIntent(SettingsIntent.ApplyBreakDuration) },
+                    resetTime = { viewModel.handleIntent(SettingsIntent.ResetBreakDuration) }
+                )
+            }
+
+            it.trainings.forEach { training ->
+                training.TrainingString {
+                    viewModel.handleIntent(SettingsIntent.UpdateTraining(it))
                 }
             }
         }
     }
 }
+
+
