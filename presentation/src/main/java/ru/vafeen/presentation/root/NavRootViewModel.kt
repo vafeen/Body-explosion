@@ -28,6 +28,7 @@ internal class NavRootViewModel @Inject constructor(
     private val releaseRepository: ReleaseRepository,
     private val refresher: Refresher,
 ) : ViewModel() {
+    private val undefinedVersion = "undefinedVersionForDevelopment"
     private val application: Application = context as Application
     private val _state = MutableStateFlow(NavRootState())
     val state = _state.asStateFlow()
@@ -55,7 +56,10 @@ internal class NavRootViewModel @Inject constructor(
         if (result is ResponseResult.Success<Release>) {
             val release = result.data
             _state.update {
-                it.copy(release = release, isUpdateNeeded = appVersionName != release.tagName)
+                it.copy(
+                    release = release,
+                    isUpdateNeeded = appVersionName != release.tagName && appVersionName != undefinedVersion
+                )
             }
         }
     }
