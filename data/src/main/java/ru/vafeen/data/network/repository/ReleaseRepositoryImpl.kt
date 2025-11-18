@@ -6,6 +6,7 @@ import ru.vafeen.data.network.utils.getResponseResultWrappedAllErrors
 import ru.vafeen.domain.models.Release
 import ru.vafeen.domain.network.result.ResponseResult
 import ru.vafeen.domain.network.service.ReleaseRepository
+import java.io.IOException
 import javax.inject.Inject
 
 /**
@@ -27,13 +28,11 @@ internal class ReleaseRepositoryImpl @Inject constructor(
             // Выполнение запроса
             val response = gitHubDataService.getLatestRelease()
             val release = response.body().toRelease()
-            // Проверка на успешный ответ и релиза на null после конвертации
             if (response.isSuccessful && release != null) {
-                // Возвращаем успешный результат
                 release
             } else {
                 // Обработка HTTP ошибки, если статус не успешен
-                throw Exception("Ошибка сервера: ${response.code()}")
+                throw IOException("Ошибка сервера: ${response.code()}")
             }
         }
 }

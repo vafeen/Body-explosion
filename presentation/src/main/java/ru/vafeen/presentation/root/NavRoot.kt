@@ -1,6 +1,5 @@
 package ru.vafeen.presentation.root
 
-
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -10,6 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -22,31 +24,42 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import ru.vafeen.presentation.R
 import ru.vafeen.presentation.common.components.TextForThisTheme
 import ru.vafeen.presentation.common.components.UpdateAvailable
 import ru.vafeen.presentation.common.components.UpdateProgress
-import ru.vafeen.presentation.common.utils.getAppVersion
+import ru.vafeen.presentation.common.utils.copyTextToClipBoard
 import ru.vafeen.presentation.features.settings.SettingsScreen
 import ru.vafeen.presentation.features.training.TrainingScreen
 import ru.vafeen.presentation.navigation.Screen
 import ru.vafeen.presentation.ui.theme.AppTheme
 import ru.vafeen.presentation.ui.theme.FontSize
 
-
 /**
- * Корневой Composable, который настраивает Scaffold
+ * Корневой Composable-компонент приложения, отвечающий за:
+ * - отображение версии приложения,
+ * - проверку и установку обновлений,
+ * - навигацию между экранами (обучение, настройки),
+ * - централизованное отображение ошибок через Snackbar.
  *
- * @param viewModel ViewModel для NavRoot.
+ * Использует unidirectional data flow: ViewModel генерирует эффекты навигации и ошибки,
+ * которые обрабатываются в UI-слое.
+ *
+ * @param viewModel ViewModel корневого экрана, инжектируемый через Hilt.
  */
 @Composable
 internal fun NavRoot(viewModel: NavRootViewModel = hiltViewModel()) {
-    val version = LocalContext.current.getAppVersion()
+    val context = LocalContext.current
     val state by viewModel.state.collectAsState()
-    LaunchedEffect(null) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
         viewModel.handleIntent(NavRootIntent.CheckUpdates)
     }
+
     val backStack = rememberNavBackStack(Screen.Training)
-    LaunchedEffect(null) {
+
+    LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
                 is NavRootEffect.NavigateTo -> backStack.add(effect.screen)
@@ -54,9 +67,29 @@ internal fun NavRoot(viewModel: NavRootViewModel = hiltViewModel()) {
             }
         }
     }
+
+    LaunchedEffect(Unit) {
+        viewModel.errors.collect { throwable ->
+            val message = throwable.message
+            val stacktrace = throwable.stackTraceToString()
+            val result = snackbarHostState.showSnackbar(
+                message = message ?: stacktrace,
+                actionLabel = context.getString(R.string.copy)
+            )
+            when (result) {
+                SnackbarResult.Dismissed -> {}
+                SnackbarResult.ActionPerformed -> context.copyTextToClipBoard(
+                    label = message ?: "no message",
+                    text = stacktrace
+                )
+            }
+        }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = AppTheme.colors.background
+        containerColor = AppTheme.colors.background,
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         val nullTransitionSpec = remember {
             ContentTransform(
@@ -64,6 +97,7 @@ internal fun NavRoot(viewModel: NavRootViewModel = hiltViewModel()) {
                 fadeOut(animationSpec = tween(0)),
             )
         }
+
         Column(modifier = Modifier.padding(innerPadding)) {
             NavDisplay(
                 backStack = backStack,
@@ -82,9 +116,10 @@ internal fun NavRoot(viewModel: NavRootViewModel = hiltViewModel()) {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 TextForThisTheme(
-                    text = "${version.second}(${version.first})",
+                    text = "${state.version.second}(${state.version.first})",
                     fontSize = FontSize.small17
                 )
+
                 state.let {
                     if (it.release != null && it.isUpdateNeeded) {
                         UpdateAvailable(it.release) {

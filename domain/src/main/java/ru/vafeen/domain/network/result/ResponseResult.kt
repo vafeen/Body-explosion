@@ -12,12 +12,13 @@ sealed class ResponseResult<T> {
      *
      * @property data Данные, полученные в результате успешного выполнения запроса.
      */
-    class Success<T>(val data: T) : ResponseResult<T>()
+    data class Success<T>(val data: T) : ResponseResult<T>()
 
     /**
      * Класс, представляющий ошибку при выполнении запроса.
      *
      * @property exception Исключение, произошедшее во время выполнения запроса.
      */
-    class Error<T>(val exception: Exception) : ResponseResult<T>()
+    data class Error<T>(val exception: Exception) : ResponseResult<T>()
+    data class NetworkError<T>(val exception: Exception) : ResponseResult<T>()
 }
