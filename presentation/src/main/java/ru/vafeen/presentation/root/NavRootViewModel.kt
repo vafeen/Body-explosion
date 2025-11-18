@@ -2,6 +2,7 @@ package ru.vafeen.presentation.root
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,8 +12,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ru.vafeen.domain.datastore.SettingsManager
 import ru.vafeen.domain.models.Release
 import ru.vafeen.domain.network.result.DownloadStatus
 import ru.vafeen.domain.network.result.ResponseResult
@@ -24,20 +27,22 @@ import ru.vafeen.presentation.navigation.Screen
 import javax.inject.Inject
 
 /**
- * ViewModel корневого экрана приложения, управляющий проверкой и установкой обновлений,
- * навигацией между экранами и отображением ошибок.
+ * ViewModel корневого экрана приложения, управляющий навигацией, проверкой обновлений
+ * и аутентификацией пользователя.
  *
  * @property releaseRepository Репозиторий для получения информации о последнем релизе.
  * @property refresher Сервис для загрузки и установки APK-обновлений.
  * @property errorShower Компонент для централизованного сбора и отображения ошибок.
- * @property application Кэшированный экземпляр Application, полученный из контекста.
+ * @property settingsManager Менеджер настроек для доступа к данным пользователя.
+ * @property context экземпляр Application
  */
 @HiltViewModel
 internal class NavRootViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val releaseRepository: ReleaseRepository,
     private val refresher: Refresher,
-    private val errorShower: ErrorShower
+    private val errorShower: ErrorShower,
+    private val settingsManager: SettingsManager,
 ) : ViewModel() {
 
     /**
@@ -54,11 +59,7 @@ internal class NavRootViewModel @Inject constructor(
     /**
      * Внутреннее изменяемое состояние корневого экрана.
      */
-    private val _state = MutableStateFlow(
-        NavRootState(
-            version = application.getAppVersion()
-        )
-    )
+    private val _state = MutableStateFlow(NavRootState())
 
     /**
      * Публичный поток состояния корневого экрана, доступный только для чтения.
@@ -95,11 +96,29 @@ internal class NavRootViewModel @Inject constructor(
     fun handleIntent(intent: NavRootIntent) {
         viewModelScope.launch(Dispatchers.IO) {
             when (intent) {
+                NavRootIntent.CheckAuth -> checkAuth()
                 NavRootIntent.CheckUpdates -> checkUpdates()
                 NavRootIntent.UpdateApp -> updateApp()
+                NavRootIntent.NavigateToSettings -> navigateTo(Screen.Settings)
                 is NavRootIntent.NavigateTo -> navigateTo(intent.screen)
+                is NavRootIntent.ReplaceRoot -> replaceRoot(intent.screen)
                 NavRootIntent.NavigateBack -> navigateBack()
             }
+        }
+    }
+
+    /**
+     * Проверяет статус аутентификации пользователя и заменяет корневой экран.
+     */
+    private suspend fun checkAuth() {
+        val settings = settingsManager.settingsFlow.first()
+        val isLoggedIn =
+            settings.id != null && settings.accessToken != null && settings.refreshToken != null
+        Log.e("tag", "isLoggedIn=$isLoggedIn")
+        if (isLoggedIn) {
+            replaceRoot(Screen.Training)
+        } else {
+            replaceRoot(Screen.UserSign)
         }
     }
 
@@ -112,16 +131,20 @@ internal class NavRootViewModel @Inject constructor(
         _effects.emit(NavRootEffect.NavigateTo(screen = screen))
 
     /**
+     * Отправляет эффект для замены корневого экрана.
+     *
+     * @param screen Новый корневой экран.
+     */
+    private suspend fun replaceRoot(screen: Screen) =
+        _effects.emit(NavRootEffect.ReplaceRoot(screen = screen))
+
+    /**
      * Отправляет эффект навигации "назад".
-     * Обычно приводит к возврату на предыдущий экран в стеке.
      */
     private suspend fun navigateBack() = _effects.emit(NavRootEffect.NavigateBack)
 
     /**
-     * Проверяет наличие новой версии приложения на удалённом сервере.
-     * Сравнивает тег последнего релиза с текущей версией приложения.
-     * Если версии различаются и сборка не локальная — устанавливает флаг необходимости обновления.
-     * В случае сетевой ошибки передаёт исключение в обработчик ошибок.
+     * Проверяет наличие новой версии приложения.
      */
     private suspend fun checkUpdates() {
         val result = releaseRepository.getLatestRelease()
@@ -139,11 +162,9 @@ internal class NavRootViewModel @Inject constructor(
         }
     }
 
-
     /**
-     * Инициализирующий блок, подписывающийся на прогресс загрузки обновления.
-     * Обновляет состояние с учётом текущего прогресса или ошибки загрузки.
-     * Запускается один раз при создании ViewModel.
+     * Инициализирующий блок, который запускает проверку аутентификации
+     * и подписывается на прогресс загрузки обновления.
      */
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -161,6 +182,9 @@ internal class NavRootViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Запускает процесс загрузки и установки обновления приложения.
+     */
     private suspend fun updateApp() {
         _state.value.release?.let { release ->
             _state.update { it.copy(isUpdateNeeded = false, isUpdateInProcess = true) }

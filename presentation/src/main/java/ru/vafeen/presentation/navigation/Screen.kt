@@ -6,6 +6,9 @@ import kotlinx.serialization.Serializable
 
 internal sealed interface Screen : NavKey {
     @Serializable
+    data object UserSign : Screen
+
+    @Serializable
     data object Training : Screen
 
     @Serializable

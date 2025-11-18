@@ -7,6 +7,9 @@ import ru.vafeen.domain.models.Settings
  * Преобразует [DataStoreSettings] в [Settings].
  */
 internal fun DataStoreSettings.toSettings(): Settings = Settings(
+    id = id,
+    accessToken = accessToken,
+    refreshToken = refreshToken,
     exerciseDuration = exerciseDurationMillis.toLocalTime(),
     breakDuration = breakDurationMillis.toLocalTime(),
     defaultExerciseDuration = defaultExerciseDurationMillis.toLocalTime(),
@@ -17,6 +20,9 @@ internal fun DataStoreSettings.toSettings(): Settings = Settings(
  * Преобразует [Settings] в [DataStoreSettings].
  */
 internal fun Settings.toDataStoreSettings(): DataStoreSettings = DataStoreSettings(
+    id = id,
+    accessToken = accessToken,
+    refreshToken = refreshToken,
     exerciseDurationMillis = exerciseDuration.toMillisOfDay(),
     breakDurationMillis = breakDuration.toMillisOfDay(),
     defaultExerciseDurationMillis = defaultExerciseDuration.toMillisOfDay(),

@@ -1,5 +1,6 @@
 package ru.vafeen.presentation.root
 
+import android.util.Log
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -25,15 +26,14 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import ru.vafeen.presentation.R
-import ru.vafeen.presentation.common.components.TextForThisTheme
 import ru.vafeen.presentation.common.components.UpdateAvailable
 import ru.vafeen.presentation.common.components.UpdateProgress
 import ru.vafeen.presentation.common.utils.copyTextToClipBoard
 import ru.vafeen.presentation.features.settings.SettingsScreen
 import ru.vafeen.presentation.features.training.TrainingScreen
+import ru.vafeen.presentation.features.user_sign.UserSignScreen
 import ru.vafeen.presentation.navigation.Screen
 import ru.vafeen.presentation.ui.theme.AppTheme
-import ru.vafeen.presentation.ui.theme.FontSize
 
 /**
  * Корневой Composable-компонент приложения, отвечающий за:
@@ -57,12 +57,26 @@ internal fun NavRoot(viewModel: NavRootViewModel = hiltViewModel()) {
         viewModel.handleIntent(NavRootIntent.CheckUpdates)
     }
 
-    val backStack = rememberNavBackStack(Screen.Training)
+    val backStack = rememberNavBackStack(Screen.UserSign)
 
     LaunchedEffect(Unit) {
+        Log.e("tag", "effects runs")
         viewModel.effects.collect { effect ->
+            Log.e("tag", "collect")
             when (effect) {
-                is NavRootEffect.NavigateTo -> backStack.add(effect.screen)
+                is NavRootEffect.NavigateTo -> {
+                    // если экран уже есть в стеке, не добавляем его повторно
+                    if (backStack.lastOrNull() != effect.screen) {
+                        backStack.add(effect.screen)
+                    }
+                }
+
+                is NavRootEffect.ReplaceRoot -> {
+                    backStack.clear()
+                    backStack.add(effect.screen)
+                    Log.e("tag", "root replaced on ${effect.screen}")
+                }
+
                 NavRootEffect.NavigateBack -> backStack.removeLastOrNull()
             }
         }
@@ -85,7 +99,9 @@ internal fun NavRoot(viewModel: NavRootViewModel = hiltViewModel()) {
             }
         }
     }
-
+    LaunchedEffect(null) {
+        viewModel.handleIntent(NavRootIntent.CheckAuth)
+    }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = AppTheme.colors.background,
@@ -104,6 +120,13 @@ internal fun NavRoot(viewModel: NavRootViewModel = hiltViewModel()) {
                 modifier = Modifier.weight(1f),
                 onBack = { viewModel.handleIntent(NavRootIntent.NavigateBack) },
                 entryProvider = entryProvider {
+                    entry<Screen.UserSign> {
+                        UserSignScreen(onAuthSuccess = {
+                            viewModel.handleIntent(
+                                NavRootIntent.ReplaceRoot(Screen.Training)
+                            )
+                        })
+                    }
                     entry<Screen.Training> { TrainingScreen(viewModel::handleIntent) }
                     entry<Screen.Settings> { SettingsScreen() }
                 },
@@ -115,11 +138,6 @@ internal fun NavRoot(viewModel: NavRootViewModel = hiltViewModel()) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                TextForThisTheme(
-                    text = "${state.version.second}(${state.version.first})",
-                    fontSize = FontSize.small17
-                )
-
                 state.let {
                     if (it.release != null && it.isUpdateNeeded) {
                         UpdateAvailable(it.release) {

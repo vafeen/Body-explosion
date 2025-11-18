@@ -81,6 +81,10 @@ internal fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                     viewModel.handleIntent(SettingsIntent.UpdateTraining(it))
                 }
             }
+            TextForThisTheme(
+                text = "${state.appVersion.second}(${state.appVersion.first})",
+                fontSize = FontSize.small17
+            )
         }
     }
 }

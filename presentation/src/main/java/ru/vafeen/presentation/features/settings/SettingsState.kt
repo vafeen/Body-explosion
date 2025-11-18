@@ -16,7 +16,7 @@ data class SettingsState(
     val tempExerciseDuration: LocalTime? = null,
     val breakDuration: LocalTime? = null,
     val tempBreakDuration: LocalTime? = null,
-    val appVersion: Pair<Int?, String?>? = null,
+    val appVersion: Pair<Int?, String?>,
     val trainings: List<Training> = listOf(),
     val isExerciseDurationDialogShowed: Boolean = false,
     val isBreakDurationDialogShowed: Boolean = false,
