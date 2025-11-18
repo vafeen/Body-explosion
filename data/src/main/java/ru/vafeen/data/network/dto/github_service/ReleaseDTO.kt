@@ -5,9 +5,8 @@ import com.google.gson.annotations.SerializedName
 /**
  * Данные о релизе из GitHub API.
  *
- * @property url URL релиза.
  * @property tagName Название тега, связанного с релизом.
- * @property assets Список активов, связанных с релизом.
+ * @property assets Список файлов, связанных с релизом.
  * @property body Описание релиза.
  */
 internal data class ReleaseDTO(

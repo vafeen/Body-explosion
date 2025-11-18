@@ -1,5 +1,7 @@
 package ru.vafeen.presentation.common.utils
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.os.Build
@@ -25,4 +27,18 @@ fun Context.getAppVersion(): Pair<Int?, String?> {
     } catch (e: Exception) {
         Pair(null, null)
     }
+}
+
+/**
+ * Функция для копирования текста в буфер обмена.
+ * Текст копируется с указанной меткой (label), которая используется для идентификации данных в буфере обмена.
+ *
+ * @param label Метка, которая будет присвоена тексту в буфере обмена.
+ * @param text Текст, который будет скопирован в буфер обмена.
+ */
+internal fun Context.copyTextToClipBoard(label: String, text: String) {
+    val clipboard =
+        getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText(label, text)
+    if (text.isNotEmpty()) clipboard.setPrimaryClip(clip)
 }

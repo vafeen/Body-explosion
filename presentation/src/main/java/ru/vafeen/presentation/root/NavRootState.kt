@@ -7,4 +7,5 @@ data class NavRootState(
     val release: Release? = null,
     val isUpdateInProcess: Boolean = false,
     val percentage: Float = 0f,
+    val version: Pair<Int?, String?>,
 )
