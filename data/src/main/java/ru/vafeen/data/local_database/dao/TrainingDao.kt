@@ -5,22 +5,23 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import ru.vafeen.data.local_database.dao.base.DataAccessObject
 import ru.vafeen.data.local_database.dao.base.FlowGetAllImplementation
-import ru.vafeen.data.local_database.entity.TrainingEntity
+import ru.vafeen.data.local_database.entity.ExerciseEntity
 
 /**
- * Объект доступа к данным (DAO) для [TrainingEntity].
+ * Data Access Object (DAO) для [ExerciseEntity].
+ * Предоставляет методы для взаимодействия с таблицей `training` в базе данных.
  */
 @Dao
-internal interface TrainingDao : DataAccessObject<TrainingEntity>,
-    FlowGetAllImplementation<TrainingEntity> {
+internal interface TrainingDao : DataAccessObject<ExerciseEntity>,
+    FlowGetAllImplementation<ExerciseEntity> {
 
     /**
      * Получает все записи из таблицы 'training' в виде потока.
      *
-     * @return [Flow] со списком [TrainingEntity].
+     * @return [Flow] со списком [ExerciseEntity].
      */
     @Query("SELECT * FROM training")
-    override fun getAll(): Flow<List<TrainingEntity>>
+    override fun getAll(): Flow<List<ExerciseEntity>>
 
     /**
      * Удаляет все записи из таблицы 'training'.

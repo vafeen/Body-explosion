@@ -8,10 +8,10 @@ import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.vafeen.data.network.repository.RefresherImpl
-import ru.vafeen.data.network.service.AndroidErrorShower
+import ru.vafeen.data.network.service.AndroidMessageShower
 import ru.vafeen.data.network.service.GitHubDataService
 import ru.vafeen.domain.network.service.Refresher
-import ru.vafeen.domain.service.ErrorShower
+import ru.vafeen.domain.service.MessageShower
 import javax.inject.Singleton
 
 /**
@@ -46,5 +46,5 @@ internal interface ServicesModule {
 
     @Binds
     @Singleton
-    fun bindsErrorWShower(impl: AndroidErrorShower): ErrorShower
+    fun bindsErrorWShower(impl: AndroidMessageShower): MessageShower
 }

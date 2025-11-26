@@ -1,4 +1,4 @@
-package ru.vafeen.domain.network.service
+package ru.vafeen.domain.repository
 
 import ru.vafeen.domain.models.SignResult
 import ru.vafeen.domain.network.result.ResponseResult

@@ -4,10 +4,12 @@ import ru.vafeen.data.datastore.models.DataStoreSettings
 import ru.vafeen.domain.models.Settings
 
 /**
- * Преобразует [DataStoreSettings] в [Settings].
+ * Преобразует модель настроек [DataStoreSettings], используемую на уровне данных,
+ * в модель домена [Settings].
+ *
+ * @return Объект [Settings], представляющий настройки в доменном слое.
  */
 internal fun DataStoreSettings.toSettings(): Settings = Settings(
-    id = id,
     accessToken = accessToken,
     refreshToken = refreshToken,
     exerciseDuration = exerciseDurationMillis.toLocalTime(),
@@ -17,10 +19,12 @@ internal fun DataStoreSettings.toSettings(): Settings = Settings(
 )
 
 /**
- * Преобразует [Settings] в [DataStoreSettings].
+ * Преобразует доменную модель настроек [Settings]
+ * в модель [DataStoreSettings] для сохранения в DataStore.
+ *
+ * @return Объект [DataStoreSettings] для хранения на уровне данных.
  */
 internal fun Settings.toDataStoreSettings(): DataStoreSettings = DataStoreSettings(
-    id = id,
     accessToken = accessToken,
     refreshToken = refreshToken,
     exerciseDurationMillis = exerciseDuration.toMillisOfDay(),

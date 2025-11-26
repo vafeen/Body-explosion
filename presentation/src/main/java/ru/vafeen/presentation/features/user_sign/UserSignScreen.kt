@@ -11,7 +11,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -20,10 +19,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import ru.vafeen.presentation.common.components.OutlinedTextFieldForThisTheme
+import ru.vafeen.presentation.common.components.TextForThisTheme
+import ru.vafeen.presentation.ui.theme.FontSize
 
 /**
  * Экран входа и регистрации пользователя.
@@ -70,35 +73,35 @@ private fun UserSignContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
+        TextForThisTheme(
             text = if (state.isSignUp) "Регистрация" else "Вход",
-            style = MaterialTheme.typography.headlineMedium
+            fontSize = FontSize.big22
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         if (state.isSignUp) {
-            OutlinedTextField(
+            OutlinedTextFieldForThisTheme(
                 value = state.name,
                 onValueChange = { onIntent(UserSignIntent.OnNameChanged(it)) },
-                label = { Text("Имя") },
+                label = { TextForThisTheme(text = "Имя", fontSize = FontSize.small17) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
 
-        OutlinedTextField(
+        OutlinedTextFieldForThisTheme(
             value = state.username,
             onValueChange = { onIntent(UserSignIntent.OnUsernameChanged(it)) },
-            label = { Text("Имя пользователя") },
+            label = { TextForThisTheme(text = "Имя пользователя", fontSize = FontSize.small17) },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
+        OutlinedTextFieldForThisTheme(
             value = state.password,
             onValueChange = { onIntent(UserSignIntent.OnPasswordChanged(it)) },
-            label = { Text("Пароль") },
+            label = { TextForThisTheme(text = "Пароль", fontSize = FontSize.small17) },
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier.fillMaxWidth()
@@ -121,14 +124,22 @@ private fun UserSignContent(
                 onClick = { onIntent(UserSignIntent.Submit) },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(if (state.isSignUp) "Зарегистрироваться" else "Войти")
+                Text(
+                    text = if (state.isSignUp) "Зарегистрироваться" else "Войти",
+                    fontSize = FontSize.small17,
+                    color = Color.White
+                )
             }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         TextButton(onClick = { onIntent(UserSignIntent.ToggleMode) }) {
-            Text(if (state.isSignUp) "Уже есть аккаунт? Войти" else "Нет аккаунта? Зарегистрироваться")
+            TextForThisTheme(
+                text = if (state.isSignUp) "Уже есть аккаунт? Войти"
+                else "Нет аккаунта? Зарегистрироваться",
+                fontSize = FontSize.small17
+            )
         }
     }
 }

@@ -27,4 +27,5 @@ internal sealed interface TrainingIntent {
      */
     data class ShowToast(val message: String, val duration: Int) : TrainingIntent
     data object NavigateToSettings : TrainingIntent
+    data object NavigateToHistory : TrainingIntent
 }

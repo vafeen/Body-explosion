@@ -16,12 +16,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.vafeen.domain.datastore.SettingsManager
+import ru.vafeen.domain.models.Message
 import ru.vafeen.domain.models.Release
 import ru.vafeen.domain.network.result.DownloadStatus
 import ru.vafeen.domain.network.result.ResponseResult
 import ru.vafeen.domain.network.service.Refresher
 import ru.vafeen.domain.network.service.ReleaseRepository
-import ru.vafeen.domain.service.ErrorShower
+import ru.vafeen.domain.service.MessageShower
 import ru.vafeen.presentation.common.utils.getAppVersion
 import ru.vafeen.presentation.navigation.Screen
 import javax.inject.Inject
@@ -32,7 +33,7 @@ import javax.inject.Inject
  *
  * @property releaseRepository Репозиторий для получения информации о последнем релизе.
  * @property refresher Сервис для загрузки и установки APK-обновлений.
- * @property errorShower Компонент для централизованного сбора и отображения ошибок.
+ * @property messageShower Компонент для централизованного сбора и отображения ошибок.
  * @property settingsManager Менеджер настроек для доступа к данным пользователя.
  * @property context экземпляр Application
  */
@@ -41,9 +42,20 @@ internal class NavRootViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val releaseRepository: ReleaseRepository,
     private val refresher: Refresher,
-    private val errorShower: ErrorShower,
+    private val messageShower: MessageShower,
     private val settingsManager: SettingsManager,
 ) : ViewModel() {
+//    init {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            delay(1000)
+//            messageShower.showMessage(
+//                Message(
+//                    text = "Привет! Твои тренировки бьют рекорды! Не хочешь увеличить их?",
+//                    button = "Перейти \nв настройки"
+//                )
+//            )
+//        }
+//    }
 
     /**
      * Специальное значение версии, используемое для обозначения локальной (не релизной) сборки.
@@ -85,7 +97,7 @@ internal class NavRootViewModel @Inject constructor(
      *
      * @return SharedFlow ошибок, готовый к отображению в UI.
      */
-    val errors = errorShower.errors
+    val messages = messageShower.uiMessages
 
     /**
      * Обрабатывает входящий интент пользователя или системы.
@@ -99,7 +111,6 @@ internal class NavRootViewModel @Inject constructor(
                 NavRootIntent.CheckAuth -> checkAuth()
                 NavRootIntent.CheckUpdates -> checkUpdates()
                 NavRootIntent.UpdateApp -> updateApp()
-                NavRootIntent.NavigateToSettings -> navigateTo(Screen.Settings)
                 is NavRootIntent.NavigateTo -> navigateTo(intent.screen)
                 is NavRootIntent.ReplaceRoot -> replaceRoot(intent.screen)
                 NavRootIntent.NavigateBack -> navigateBack()
@@ -112,8 +123,7 @@ internal class NavRootViewModel @Inject constructor(
      */
     private suspend fun checkAuth() {
         val settings = settingsManager.settingsFlow.first()
-        val isLoggedIn =
-            settings.id != null && settings.accessToken != null && settings.refreshToken != null
+        val isLoggedIn = settings.accessToken != null && settings.refreshToken != null
         Log.e("tag", "isLoggedIn=$isLoggedIn")
         if (isLoggedIn) {
             replaceRoot(Screen.Training)
@@ -158,7 +168,13 @@ internal class NavRootViewModel @Inject constructor(
                 )
             }
         } else if (result is ResponseResult.Error<*>) {
-            errorShower.showError(result.exception)
+            messageShower.showMessage(
+                Message(
+                    text = "${result.exception.message}",
+                    button = "copy",
+                    clipboardText = result.exception.stackTraceToString()
+                )
+            )
         }
     }
 
@@ -176,7 +192,13 @@ internal class NavRootViewModel @Inject constructor(
                     )
                 }
                 if (status is DownloadStatus.Error) {
-                    errorShower.showError(status.exception)
+                    messageShower.showMessage(
+                        Message(
+                            text = "${status.exception.message}",
+                            button = "copy",
+                            clipboardText = status.exception.stackTraceToString()
+                        )
+                    )
                 }
             }
         }

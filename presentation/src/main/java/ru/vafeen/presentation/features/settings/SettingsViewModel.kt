@@ -12,9 +12,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.vafeen.domain.datastore.SettingsManager
-import ru.vafeen.domain.local_database.TrainingLocalRepository
+import ru.vafeen.domain.models.Exercise
 import ru.vafeen.domain.models.Settings
-import ru.vafeen.domain.models.Training
+import ru.vafeen.domain.repository.ExerciseRepository
 import ru.vafeen.presentation.common.utils.getAppVersion
 import java.time.LocalTime
 import javax.inject.Inject
@@ -22,13 +22,13 @@ import javax.inject.Inject
 /**
  * ViewModel для экрана настроек.
  *
- * @property trainingLocalRepository Репозиторий для работы с тренировками в локальной базе данных.
+ * @property exerciseRepository Репозиторий для работы с тренировками в локальной базе данных.
  * @property settingsManager Менеджер для работы с настройками приложения.
  * @param context Контекст приложения.
  */
 @HiltViewModel
 internal class SettingsViewModel @Inject constructor(
-    private val trainingLocalRepository: TrainingLocalRepository,
+    private val exerciseRepository: ExerciseRepository,
     private val settingsManager: SettingsManager,
     @ApplicationContext context: Context
 ) : ViewModel() {
@@ -53,7 +53,7 @@ internal class SettingsViewModel @Inject constructor(
             when (intent) {
                 is SettingsIntent.UpdateSettings -> updateSettings(intent.updating)
 
-                is SettingsIntent.UpdateTraining -> updateTraining(intent.training)
+                is SettingsIntent.UpdateTraining -> updateTraining(intent.exercise)
                 SettingsIntent.SwitchBreakDurationDialogIsShowed -> switchBreakDurationDialogIsShowed()
                 SettingsIntent.SwitchExerciseDurationDialogIsShowed -> switchExerciseDurationDialogIsShowed()
 
@@ -85,8 +85,8 @@ internal class SettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            trainingLocalRepository.getAllTrainings().collect {
-                _state.update { state -> state.copy(trainings = it) }
+            exerciseRepository.getAllExercises().collect {
+                _state.update { state -> state.copy(exercises = it) }
             }
         }
     }
@@ -109,10 +109,10 @@ internal class SettingsViewModel @Inject constructor(
     /**
      * Обновляет тренировку в локальной базе данных.
      *
-     * @param training Тренировка для обновления.
+     * @param exercise Тренировка для обновления.
      */
-    private suspend fun updateTraining(training: Training) =
-        trainingLocalRepository.insert(listOf(training))
+    private suspend fun updateTraining(exercise: Exercise) =
+        exerciseRepository.insert(listOf(exercise))
 
     /**
      * Обновляет временную длительность упражнения в состоянии.

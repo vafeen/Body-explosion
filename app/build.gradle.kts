@@ -11,7 +11,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "ru.vafeen.example"
+        applicationId = "ru.vafeen.diploma"
         minSdk = 26
         targetSdk = 36
         versionCode = "${project.findProperty("versionCode")}".toIntOrNull() ?: 1

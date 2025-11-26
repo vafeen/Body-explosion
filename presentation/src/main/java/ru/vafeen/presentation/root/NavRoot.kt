@@ -21,17 +21,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import ru.vafeen.presentation.R
 import ru.vafeen.presentation.common.components.UpdateAvailable
 import ru.vafeen.presentation.common.components.UpdateProgress
 import ru.vafeen.presentation.common.utils.copyTextToClipBoard
 import ru.vafeen.presentation.features.settings.SettingsScreen
 import ru.vafeen.presentation.features.training.TrainingScreen
 import ru.vafeen.presentation.features.user_sign.UserSignScreen
+import ru.vafeen.presentation.features.workout.HistoryScreen
 import ru.vafeen.presentation.navigation.Screen
 import ru.vafeen.presentation.ui.theme.AppTheme
 
@@ -83,18 +83,16 @@ internal fun NavRoot(viewModel: NavRootViewModel = hiltViewModel()) {
     }
 
     LaunchedEffect(Unit) {
-        viewModel.errors.collect { throwable ->
-            val message = throwable.message
-            val stacktrace = throwable.stackTraceToString()
+        viewModel.messages.collect { message ->
             val result = snackbarHostState.showSnackbar(
-                message = message ?: stacktrace,
-                actionLabel = context.getString(R.string.copy)
+                message = message.text,
+                actionLabel = message.button
             )
             when (result) {
                 SnackbarResult.Dismissed -> {}
                 SnackbarResult.ActionPerformed -> context.copyTextToClipBoard(
-                    label = message ?: "no message",
-                    text = stacktrace
+                    label = if (message.clipboardText != null) message.text else "",
+                    text = message.clipboardText ?: message.text
                 )
             }
         }
@@ -129,6 +127,7 @@ internal fun NavRoot(viewModel: NavRootViewModel = hiltViewModel()) {
                     }
                     entry<Screen.Training> { TrainingScreen(viewModel::handleIntent) }
                     entry<Screen.Settings> { SettingsScreen() }
+                    entry<Screen.History> { HistoryScreen() }
                 },
                 transitionSpec = { nullTransitionSpec },
                 popTransitionSpec = { nullTransitionSpec },

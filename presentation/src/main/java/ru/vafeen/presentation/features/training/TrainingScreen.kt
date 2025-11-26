@@ -32,12 +32,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.vafeen.presentation.R
 import ru.vafeen.presentation.common.components.TextForThisTheme
-import ru.vafeen.presentation.common.icons.Icons
 import ru.vafeen.presentation.root.NavRootIntent
 import ru.vafeen.presentation.ui.theme.AppTheme
 import ru.vafeen.presentation.ui.theme.Colors
@@ -82,16 +82,28 @@ internal fun TrainingScreen(
                 }
             )
     ) {
-        IconButton(
-            modifier = Modifier
-                .align(Alignment.End),
-            onClick = { viewModel.handleIntent(TrainingIntent.NavigateToSettings) }) {
-            Icon(
-                modifier = Modifier,
-                imageVector = Icons.Settings,
-                contentDescription = stringResource(R.string.settings),
-                tint = AppTheme.colors.text
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            IconButton(
+                onClick = { viewModel.handleIntent(TrainingIntent.NavigateToHistory) }) {
+                Icon(
+                    modifier = Modifier,
+                    painter = painterResource(R.drawable.history),
+                    contentDescription = stringResource(R.string.history),
+                    tint = AppTheme.colors.text
+                )
+            }
+            IconButton(
+                onClick = { viewModel.handleIntent(TrainingIntent.NavigateToSettings) }) {
+                Icon(
+                    modifier = Modifier,
+                    painter = painterResource(R.drawable.settings),
+                    contentDescription = stringResource(R.string.settings),
+                    tint = AppTheme.colors.text
+                )
+            }
         }
         when (val currentState = state) {
             is TrainingState.NotStarted -> NotStartedPane(

@@ -20,8 +20,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import ru.vafeen.domain.datastore.SettingsManager
-import ru.vafeen.domain.local_database.TrainingLocalRepository
-import ru.vafeen.domain.models.Training
+import ru.vafeen.domain.models.Exercise
+import ru.vafeen.domain.repository.ExerciseRepository
 import ru.vafeen.domain.service.MusicPlayer
 import ru.vafeen.presentation.navigation.Screen
 import ru.vafeen.presentation.root.NavRootIntent
@@ -36,7 +36,7 @@ import kotlin.concurrent.withLock
  *
  * @param context Контекст приложения, используемый для инициализации [MusicPlayer].
  * @param sendRootIntent Функция для отправки навигационных интентов.
- * @param trainingLocalRepository Репозиторий для доступа к данным о тренировках.
+ * @param exerciseRepository Репозиторий для доступа к данным о тренировках.
  * @param settingsManager Менеджер для доступа к настройкам приложения.
  * @param musicPlayer Экземпляр плеера для управления воспроизведением музыки.
  */
@@ -44,14 +44,14 @@ import kotlin.concurrent.withLock
 internal class TrainingViewModel @AssistedInject constructor(
     @ApplicationContext context: Context,
     @Assisted private val sendRootIntent: (NavRootIntent) -> Unit,
-    private val trainingLocalRepository: TrainingLocalRepository,
+    private val exerciseRepository: ExerciseRepository,
     private val settingsManager: SettingsManager,
     private val musicPlayer: MusicPlayer
 ) : ViewModel() {
     private val settings = settingsManager.settingsFlow.value
     private var secondsForExercise = settings.exerciseDuration.toSecondOfDay()
     private var secondsForBreak = settings.breakDuration.toSecondOfDay()
-    private var exercises = listOf<Training>()
+    private var exercises = listOf<Exercise>()
     private val _state = MutableStateFlow<TrainingState>(TrainingState.NotStarted)
 
     val state = _state.asStateFlow()
@@ -73,23 +73,23 @@ internal class TrainingViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            val defaultTrainings = listOf(
-                Training(1, "Прыжки", true),
-                Training(2, "Пресс", true),
-                Training(3, "Выседы", true),
-                Training(4, "Отжимания", true),
-                Training(5, "Складка", true),
-                Training(6, "Планка", true),
-                Training(7, "Круги", false),
-                Training(8, "Рукоход", true),
-                Training(9, "Разгибания", true),
-                Training(10, "Лесенка", true),
-                Training(11, "Лодочка", true),
-                Training(12, "Флажок", false)
+            val defaultExercises = listOf(
+                Exercise(1, "Прыжки", true),
+                Exercise(2, "Пресс", true),
+                Exercise(3, "Выседы", true),
+                Exercise(4, "Отжимания", true),
+                Exercise(5, "Складка", true),
+                Exercise(6, "Планка", true),
+                Exercise(7, "Круги", false),
+                Exercise(8, "Рукоход", true),
+                Exercise(9, "Разгибания", true),
+                Exercise(10, "Лесенка", true),
+                Exercise(11, "Лодочка", true),
+                Exercise(12, "Флажок", false)
             )
-            val trainings = trainingLocalRepository.getAllTrainings().first()
-            if (trainings.isEmpty()) trainingLocalRepository.insert(trainings = defaultTrainings)
-            trainingLocalRepository.getAllTrainings().collect { trainings ->
+            val trainings = exerciseRepository.getAllExercises().first()
+            if (trainings.isEmpty()) exerciseRepository.insert(exercises = defaultExercises)
+            exerciseRepository.getAllExercises().collect { trainings ->
                 exercises = trainings.filter { it.isIncludedToTraining }
             }
         }
@@ -108,10 +108,12 @@ internal class TrainingViewModel @AssistedInject constructor(
                 TrainingIntent.PauseTraining -> pauseTraining()
                 is TrainingIntent.ShowToast -> showToast(intent.message)
                 TrainingIntent.NavigateToSettings -> navigateToSettings()
+                TrainingIntent.NavigateToHistory -> navigateToHistory()
             }
         }
     }
 
+    private fun navigateToHistory() = sendRootIntent(NavRootIntent.NavigateTo(Screen.History))
     private fun navigateToSettings() =
         sendRootIntent(NavRootIntent.NavigateTo(Screen.Settings))
 
@@ -220,6 +222,7 @@ internal class TrainingViewModel @AssistedInject constructor(
         stopTimer()
         musicPlayer.pause()
         musicPlayer.release()
+
         _state.value = TrainingState.NotStarted
     }
 

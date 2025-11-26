@@ -15,6 +15,11 @@ import ru.vafeen.presentation.R
 import ru.vafeen.presentation.ui.theme.AppTheme
 import ru.vafeen.presentation.ui.theme.FontSize
 
+/**
+ * Composable-функция, отображающая прогресс обновления приложения.
+ *
+ * @param percentage Прогресс загрузки в виде числа с плавающей точкой от 0.0 до 1.0.
+ */
 @Composable
 internal fun UpdateProgress(percentage: Float) {
     Column(

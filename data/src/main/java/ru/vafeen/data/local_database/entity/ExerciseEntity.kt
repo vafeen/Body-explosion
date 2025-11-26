@@ -11,7 +11,7 @@ import androidx.room.PrimaryKey
  * @property isIncludedToTraining Включено ли упражнение в тренировку.
  */
 @Entity(tableName = "training")
-internal data class TrainingEntity(
+internal data class ExerciseEntity(
     @PrimaryKey val id: Int,
     val name: String,
     val isIncludedToTraining: Boolean,

@@ -21,6 +21,12 @@ import ru.vafeen.presentation.common.utils.roundToOneDecimal
 import ru.vafeen.presentation.ui.theme.Colors
 import ru.vafeen.presentation.ui.theme.FontSize
 
+/**
+ * Composable-функция, отображающая уведомление о доступном обновлении.
+ *
+ * @param release Информация о релизе.
+ * @param onClick Лямбда-функция, вызываемая при нажатии на уведомление.
+ */
 @Composable
 internal fun UpdateAvailable(
     release: Release,

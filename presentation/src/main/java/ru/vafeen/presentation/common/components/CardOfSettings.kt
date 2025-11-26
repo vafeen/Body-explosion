@@ -30,6 +30,15 @@ import ru.vafeen.presentation.common.utils.generateRandomColor
 import ru.vafeen.presentation.ui.theme.AppTheme
 import ru.vafeen.presentation.ui.theme.FontSize
 
+/**
+ * Composable-функция для отображения карточки настройки.
+ *
+ * @param text Текст, отображаемый на карточке.
+ * @param icon Composable-функция для отображения иконки. Принимает цвет, который можно использовать для иконки.
+ * @param onClick Лямбда-функция, вызываемая при нажатии на карточку.
+ * @param additionalContentIsVisible Флаг, определяющий, видим ли дополнительный контент.
+ * @param additionalContent Composable-функция для отображения дополнительного контента, если он видим.
+ */
 @Composable
 internal fun CardOfSettings(
     text: String,
@@ -45,7 +54,7 @@ internal fun CardOfSettings(
         colors = CardDefaults.cardColors(
             containerColor = AppTheme.colors.buttonColor,
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = contentPadding)
+        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
     ) {
         Column {
             Row(
@@ -84,6 +93,14 @@ internal fun CardOfSettings(
     }
 }
 
+/**
+ * Composable-функция для отображения опции (фичи) внутри карточки настройки.
+ *
+ * @param onClick Лямбда-функция, вызываемая при нажатии на элемент.
+ * @param padding Внутренний отступ для контента.
+ * @param text Текст, описывающий опцию.
+ * @param checked Состояние чекбокса.
+ */
 @Composable
 internal fun FeatureOfSettings(
     onClick: () -> Unit,

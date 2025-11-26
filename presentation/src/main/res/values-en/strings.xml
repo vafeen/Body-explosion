@@ -24,4 +24,8 @@
     <string name="reset">Reset</string>
     <string name="apply">Apply</string>
     <string name="copy">Copy</string>
+    <string name="history">History</string>
+    <string name="date_time">Date and time</string>
+    <string name="duration">Duration</string>
+    <string name="count_of_exercises">Count of exercises</string>
 </resources>

@@ -7,7 +7,7 @@ package ru.vafeen.domain.models
  * @property name Название упражнения.
  * @property isIncludedToTraining Включено ли упражнение в тренировку.
  */
-data class Training(
+data class Exercise(
     val id: Int,
     val name: String,
     val isIncludedToTraining: Boolean,

@@ -22,10 +22,6 @@ internal sealed interface NavRootIntent {
      */
     data object UpdateApp : NavRootIntent
 
-    /**
-     * Интент для навигации на экран настроек.
-     */
-    data object NavigateToSettings : NavRootIntent
 
     /**
      * Интент для навигации на указанный экран.

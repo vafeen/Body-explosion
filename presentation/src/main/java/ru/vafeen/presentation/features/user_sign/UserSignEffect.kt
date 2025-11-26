@@ -7,12 +7,10 @@ internal sealed interface UserSignEffect {
     /**
      * Эффект, сигнализирующий об успешной аутентификации.
      *
-     * @property id Уникальный идентификатор пользователя.
      * @property accessToken Токен доступа.
      * @property refreshToken Токен обновления.
      */
     data class AuthSuccess(
-        val id: Long,
         val accessToken: String,
         val refreshToken: String
     ) : UserSignEffect

@@ -4,38 +4,38 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import ru.vafeen.domain.service.ErrorShower
+import ru.vafeen.domain.models.Message
+import ru.vafeen.domain.service.MessageShower
 import javax.inject.Inject
 
 /**
- * Реализация интерфейса [ErrorShower] для Android-платформы.
+ * Реализация интерфейса [MessageShower] для Android-платформы.
  * Использует MutableSharedFlow с неограниченным буфером и стратегией SUSPEND
  * для надёжной доставки всех ошибок без потерь.
  */
-internal class AndroidErrorShower @Inject constructor() : ErrorShower {
+internal class AndroidMessageShower @Inject constructor() : MessageShower {
 
     /**
      * Внутренний буфер для хранения ошибок.
      * Используется стратегия [BufferOverflow.SUSPEND] для предотвращения потери данных.
      */
-    private val _errors = MutableSharedFlow<Throwable>(
+    private val _uiMessages = MutableSharedFlow<Message>(
         extraBufferCapacity = Int.MAX_VALUE,
         onBufferOverflow = BufferOverflow.SUSPEND
     )
 
     /**
      * Публичный поток ошибок, доступный только для чтения.
-     *
-     * @return SharedFlow, эмитирующий ошибки в порядке их поступления.
+     * Эмитирует ошибки в порядке их поступления.
      */
-    override val errors: SharedFlow<Throwable> = _errors.asSharedFlow()
+    override val uiMessages: SharedFlow<Message> = _uiMessages.asSharedFlow()
 
     /**
      * Отправляет ошибку в общий поток.
      * Блокирует корутину при переполнении буфера (теоретически не должно происходить
      * благодаря неограниченному буферу).
      *
-     * @param throwable Исключение, подлежащее отправке в UI.
+     * @param message Сообщение с ошибкой, подлежащее отправке в UI.
      */
-    override suspend fun showError(throwable: Throwable) = _errors.emit(throwable)
+    override suspend fun showMessage(message: Message) = _uiMessages.emit(message)
 }

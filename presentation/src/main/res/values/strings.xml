@@ -24,4 +24,8 @@
     <string name="reset">Сбросить</string>
     <string name="apply">Применить</string>
     <string name="copy">Скопировать</string>
+    <string name="history">История</string>
+    <string name="date_time">Дата и время</string>
+    <string name="duration">Длительность</string>
+    <string name="count_of_exercises">Количество упражнений</string>
 </resources>
