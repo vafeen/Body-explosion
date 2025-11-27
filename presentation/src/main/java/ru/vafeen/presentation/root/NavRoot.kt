@@ -28,10 +28,11 @@ import androidx.navigation3.ui.NavDisplay
 import ru.vafeen.presentation.common.components.UpdateAvailable
 import ru.vafeen.presentation.common.components.UpdateProgress
 import ru.vafeen.presentation.common.utils.copyTextToClipBoard
+import ru.vafeen.presentation.features.history.HistoryScreen
 import ru.vafeen.presentation.features.settings.SettingsScreen
 import ru.vafeen.presentation.features.training.TrainingScreen
 import ru.vafeen.presentation.features.user_sign.UserSignScreen
-import ru.vafeen.presentation.features.workout.HistoryScreen
+import ru.vafeen.presentation.features.workout.WorkoutScreen
 import ru.vafeen.presentation.navigation.Screen
 import ru.vafeen.presentation.ui.theme.AppTheme
 
@@ -128,6 +129,7 @@ internal fun NavRoot(viewModel: NavRootViewModel = hiltViewModel()) {
                     entry<Screen.Training> { TrainingScreen(viewModel::handleIntent) }
                     entry<Screen.Settings> { SettingsScreen() }
                     entry<Screen.History> { HistoryScreen() }
+                    entry<Screen.Workout> { WorkoutScreen(viewModel::handleIntent) }
                 },
                 transitionSpec = { nullTransitionSpec },
                 popTransitionSpec = { nullTransitionSpec },

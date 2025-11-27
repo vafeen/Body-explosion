@@ -9,7 +9,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import ru.vafeen.presentation.common.components.TextForThisTheme
 import ru.vafeen.presentation.common.components.time_picker.TimePicker
 import ru.vafeen.presentation.ui.theme.AppTheme

@@ -16,4 +16,7 @@ internal sealed interface Screen : NavKey {
 
     @Serializable
     data object History : Screen
+
+    @Serializable
+    data object Workout : Screen
 }

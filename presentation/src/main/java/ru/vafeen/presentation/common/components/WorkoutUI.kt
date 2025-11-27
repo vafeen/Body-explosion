@@ -1,5 +1,6 @@
 package ru.vafeen.presentation.common.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,33 +11,35 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import ru.vafeen.domain.models.Workout
+import ru.vafeen.domain.models.WorkoutUI
 import ru.vafeen.presentation.R
-import ru.vafeen.presentation.common.utils.formatAsLocalDateTime
-import ru.vafeen.presentation.common.utils.formatAsTime
 import ru.vafeen.presentation.ui.theme.AppTheme
 import ru.vafeen.presentation.ui.theme.FontSize
 
-/**
- * Composable-функция, которая отображает информацию о тренировке [Workout] в виде карточки.
- */
 @Composable
-internal fun Workout.WorkoutString() {
+internal fun WorkoutUI.WorkoutString(onClick: (() -> Unit)?) {
     Card(
         colors = CardDefaults.cardColors(
             containerColor = AppTheme.colors.buttonColor,
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
     ) {
-        Column(modifier = Modifier.padding(5.dp)) {
+        Column(
+            modifier = Modifier
+                .let {
+                    if (onClick != null) it.clickable { onClick() } else it
+                }
+                .padding(5.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
                 TextForThisTheme(
                     text = this@WorkoutString.text,
-                    fontSize = FontSize.small17
+                    fontSize = FontSize.medium19,
+                    fontWeight = FontWeight.Bold
                 )
             }
             Row(
@@ -44,12 +47,13 @@ internal fun Workout.WorkoutString() {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 TextForThisTheme(
-                    text = stringResource(R.string.date_time),
+                    text = stringResource(R.string.description),
                     fontSize = FontSize.small17
                 )
                 TextForThisTheme(
-                    text = this@WorkoutString.dateTime.formatAsLocalDateTime(seconds = false),
-                    fontSize = FontSize.small17
+                    text = this@WorkoutString.description,
+                    fontSize = FontSize.small17,
+                    fontWeight = FontWeight.Bold
                 )
             }
             Row(
@@ -61,21 +65,9 @@ internal fun Workout.WorkoutString() {
                     fontSize = FontSize.small17
                 )
                 TextForThisTheme(
-                    text = this@WorkoutString.duration.formatAsTime(hours = false),
-                    fontSize = FontSize.small17
-                )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                TextForThisTheme(
-                    text = stringResource(R.string.count_of_exercises),
-                    fontSize = FontSize.small17
-                )
-                TextForThisTheme(
-                    text = "${this@WorkoutString.countOfExercises}",
-                    fontSize = FontSize.small17
+                    text = this@WorkoutString.duration,
+                    fontSize = FontSize.small17,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }

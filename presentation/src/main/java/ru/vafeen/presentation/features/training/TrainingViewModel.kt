@@ -23,7 +23,6 @@ import ru.vafeen.domain.datastore.SettingsManager
 import ru.vafeen.domain.models.Exercise
 import ru.vafeen.domain.repository.ExerciseRepository
 import ru.vafeen.domain.service.MusicPlayer
-import ru.vafeen.presentation.navigation.Screen
 import ru.vafeen.presentation.root.NavRootIntent
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -52,7 +51,7 @@ internal class TrainingViewModel @AssistedInject constructor(
     private var secondsForExercise = settings.exerciseDuration.toSecondOfDay()
     private var secondsForBreak = settings.breakDuration.toSecondOfDay()
     private var exercises = listOf<Exercise>()
-    private val _state = MutableStateFlow<TrainingState>(TrainingState.NotStarted)
+    private val _state = MutableStateFlow<TrainingState>(TrainingState.NotStarted(listOf()))
 
     val state = _state.asStateFlow()
     private val _effects = MutableSharedFlow<TrainingEffect>()
@@ -91,6 +90,7 @@ internal class TrainingViewModel @AssistedInject constructor(
             if (trainings.isEmpty()) exerciseRepository.insert(exercises = defaultExercises)
             exerciseRepository.getAllExercises().collect { trainings ->
                 exercises = trainings.filter { it.isIncludedToTraining }
+                _state.value = TrainingState.NotStarted(exercises = exercises)
             }
         }
     }
@@ -107,15 +107,11 @@ internal class TrainingViewModel @AssistedInject constructor(
                 TrainingIntent.StartTraining -> startTraining()
                 TrainingIntent.PauseTraining -> pauseTraining()
                 is TrainingIntent.ShowToast -> showToast(intent.message)
-                TrainingIntent.NavigateToSettings -> navigateToSettings()
-                TrainingIntent.NavigateToHistory -> navigateToHistory()
             }
         }
     }
 
-    private fun navigateToHistory() = sendRootIntent(NavRootIntent.NavigateTo(Screen.History))
-    private fun navigateToSettings() =
-        sendRootIntent(NavRootIntent.NavigateTo(Screen.Settings))
+
 
     private suspend fun showToast(message: String) =
         _effects.emit(TrainingEffect.ShowToast(message, Toast.LENGTH_SHORT))
@@ -223,7 +219,7 @@ internal class TrainingViewModel @AssistedInject constructor(
         musicPlayer.pause()
         musicPlayer.release()
 
-        _state.value = TrainingState.NotStarted
+        _state.value = TrainingState.NotStarted(exercises)
     }
 
     /**

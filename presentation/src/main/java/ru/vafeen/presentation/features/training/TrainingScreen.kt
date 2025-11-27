@@ -14,10 +14,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,12 +32,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.vafeen.presentation.R
+import ru.vafeen.presentation.common.components.ExerciseString2
 import ru.vafeen.presentation.common.components.TextForThisTheme
+import ru.vafeen.presentation.features.workout.target
 import ru.vafeen.presentation.root.NavRootIntent
 import ru.vafeen.presentation.ui.theme.AppTheme
 import ru.vafeen.presentation.ui.theme.Colors
@@ -58,6 +60,14 @@ internal fun TrainingScreen(
         }
     )
     val state by viewModel.state.collectAsState()
+    TrainingScreenByState(state, viewModel)
+}
+
+@Composable
+internal fun TrainingScreenByState(
+    state: TrainingState,
+    viewModel: TrainingViewModel,
+) {
     val context = LocalContext.current
     LaunchedEffect(null) {
         viewModel.effects.collect { effect ->
@@ -82,56 +92,35 @@ internal fun TrainingScreen(
                 }
             )
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            IconButton(
-                onClick = { viewModel.handleIntent(TrainingIntent.NavigateToHistory) }) {
-                Icon(
-                    modifier = Modifier,
-                    painter = painterResource(R.drawable.history),
-                    contentDescription = stringResource(R.string.history),
-                    tint = AppTheme.colors.text
-                )
-            }
-            IconButton(
-                onClick = { viewModel.handleIntent(TrainingIntent.NavigateToSettings) }) {
-                Icon(
-                    modifier = Modifier,
-                    painter = painterResource(R.drawable.settings),
-                    contentDescription = stringResource(R.string.settings),
-                    tint = AppTheme.colors.text
-                )
-            }
-        }
-        when (val currentState = state) {
+
+        when (state) {
             is TrainingState.NotStarted -> NotStartedPane(
+                state = state,
                 modifier = Modifier.weight(1f),
                 sendIntent = viewModel::handleIntent
             )
 
             is TrainingState.InProgress -> TrainingPane(
                 modifier = Modifier.weight(1f),
-                state = currentState,
+                state = state,
                 sendIntent = viewModel::handleIntent
             )
 
             is TrainingState.Break -> BreakPane(
                 modifier = Modifier.weight(1f),
-                state = currentState,
+                state = state,
                 sendIntent = viewModel::handleIntent
             )
 
             is TrainingState.PausedBreak -> PausedBreakPane(
                 modifier = Modifier.weight(1f),
-                state = currentState,
+                state = state,
                 sendIntent = viewModel::handleIntent
             )
 
             is TrainingState.PausedTraining -> PausedTrainingPane(
                 modifier = Modifier.weight(1f),
-                state = currentState,
+                state = state,
                 sendIntent = viewModel::handleIntent
             )
         }
@@ -157,8 +146,13 @@ internal fun TrainingPane(
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         TextForThisTheme(
-            text = "${stringResource(id = R.string.current_exercise)}\n[${state.currentExercise + 1}/${state.exercises.size}] ${state.exercises[state.currentExercise].name}",
+            text = stringResource(id = R.string.current_exercise),
             fontSize = FontSize.medium19,
+        )
+        TextForThisTheme(
+            text = "[${state.currentExercise + 1}/${state.exercises.size}] ${state.exercises[state.currentExercise].name}",
+            fontSize = FontSize.big22,
+            fontWeight = FontWeight.Bold
         )
         Timer(
             modifier = Modifier.size(200.dp),
@@ -222,13 +216,24 @@ internal fun PauseAndStopExercise(
  */
 @Composable
 internal fun NotStartedPane(
+    state: TrainingState.NotStarted,
     modifier: Modifier,
     sendIntent: (TrainingIntent) -> Unit
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier.fillMaxWidth()
+    Column(
+        modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        TextForThisTheme(
+            modifier = Modifier.padding(10.dp),
+            text = target,
+            fontSize = FontSize.big22
+        )
+        LazyColumn {
+            items(items = state.exercises) {
+                it.ExerciseString2 { }
+            }
+        }
         StartButton { sendIntent(TrainingIntent.StartTraining) }
     }
 }
@@ -259,8 +264,13 @@ internal fun BreakPane(
             fontSize = FontSize.medium19,
         )
         TextForThisTheme(
-            text = "${stringResource(id = R.string.next_exercise)} \n[${state.nextExercise + 1}/${state.exercises.size}]${state.exercises[state.nextExercise].name}",
+            text = stringResource(id = R.string.next_exercise),
             fontSize = FontSize.medium19,
+        )
+        TextForThisTheme(
+            text = "[${state.nextExercise + 1}/${state.exercises.size}]${state.exercises[state.nextExercise].name}",
+            fontSize = FontSize.big22,
+            fontWeight = FontWeight.Bold
         )
 
         Timer(
@@ -305,8 +315,13 @@ internal fun PausedBreakPane(
             fontSize = FontSize.medium19,
         )
         TextForThisTheme(
-            text = "${stringResource(id = R.string.next_exercise)}\n[${state.nextExercise + 1}/${state.exercises.size}] ${state.exercises[state.nextExercise].name}",
+            text = stringResource(id = R.string.next_exercise),
             fontSize = FontSize.medium19,
+        )
+        TextForThisTheme(
+            text = "[${state.nextExercise + 1}/${state.exercises.size}] ${state.exercises[state.nextExercise].name}",
+            fontSize = FontSize.big22,
+            fontWeight = FontWeight.Bold
         )
         Button(onClick = { sendIntent(TrainingIntent.StartTraining) }) {
             Text(text = stringResource(id = R.string.continue_button))
@@ -337,9 +352,13 @@ internal fun PausedTrainingPane(
             fontSize = FontSize.medium19
         )
         TextForThisTheme(
-            text = "${stringResource(id = R.string.current_exercise)}\n[${state.currentExercise + 1}/${state.exercises.size}]${state.exercises[state.currentExercise].name}",
-
+            text = stringResource(id = R.string.current_exercise),
             fontSize = FontSize.medium19,
+        )
+        TextForThisTheme(
+            text = "[${state.currentExercise + 1}/${state.exercises.size}]${state.exercises[state.currentExercise].name}",
+            fontSize = FontSize.big22,
+            fontWeight = FontWeight.Bold
         )
         Button(onClick = { sendIntent(TrainingIntent.StartTraining) }) {
             Text(text = stringResource(id = R.string.continue_button))

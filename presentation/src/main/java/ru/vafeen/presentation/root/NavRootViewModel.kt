@@ -126,7 +126,7 @@ internal class NavRootViewModel @Inject constructor(
         val isLoggedIn = settings.accessToken != null && settings.refreshToken != null
         Log.e("tag", "isLoggedIn=$isLoggedIn")
         if (isLoggedIn) {
-            replaceRoot(Screen.Training)
+            replaceRoot(Screen.Workout)
         } else {
             replaceRoot(Screen.UserSign)
         }

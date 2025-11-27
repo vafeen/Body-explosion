@@ -32,7 +32,12 @@ internal fun Exercise.toExerciseEntity(): ExerciseEntity =
  * @return Доменная модель [Workout].
  */
 internal fun WorkoutEntity.toWorkout(): Workout =
-    Workout(dateTime = dateTime, duration = duration, countOfExercises = countOfExercises)
+    Workout(
+        dateTime = dateTime,
+        duration = duration,
+        countOfExercises = countOfExercises,
+        text = TODO()
+    )
 
 /**
  * Преобразует доменную модель [Workout] в объект базы данных [WorkoutEntity].

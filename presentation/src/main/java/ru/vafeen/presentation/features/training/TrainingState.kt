@@ -11,7 +11,9 @@ internal sealed interface TrainingState {
     /**
      * Тренировка еще не началась.
      */
-    data object NotStarted : TrainingState
+    data class NotStarted(
+        val exercises: List<Exercise>,
+    ) : TrainingState
 
     /**
      * Тренировка в процессе выполнения.
