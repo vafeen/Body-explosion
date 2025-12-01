@@ -1,5 +1,6 @@
 package ru.vafeen.presentation.common.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import ru.vafeen.domain.models.Exercise
+import ru.vafeen.presentation.common.utils.formatAsTime
 import ru.vafeen.presentation.ui.theme.FontSize
 
 /**
@@ -39,11 +41,13 @@ internal fun Exercise.ExerciseString(
  */
 @Composable
 internal fun Exercise.ExerciseString2(
-    updateTraining: (Exercise) -> Unit
+    updateTraining: (Exercise) -> Unit,
+    onClick: () -> Unit,
 ) {
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(checked = this@ExerciseString2.isIncludedToTraining, onCheckedChange = {
@@ -55,7 +59,11 @@ internal fun Exercise.ExerciseString2(
                 fontSize = FontSize.small17,
                 fontWeight = FontWeight.Bold
             )
-            TextForThisTheme(text = "Длительность: 1:00", fontSize = FontSize.small17)
+            TextForThisTheme(
+                modifier = Modifier.clickable(onClick = onClick),
+                text = "Длительность: ${this@ExerciseString2.duration.formatAsTime(hours = false)}",
+                fontSize = FontSize.small17
+            )
         }
     }
 }

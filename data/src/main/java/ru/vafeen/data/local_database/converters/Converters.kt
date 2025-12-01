@@ -16,7 +16,12 @@ import java.time.ZoneId
  * @return Доменная модель [Exercise].
  */
 internal fun ExerciseEntity.toExercise(): Exercise =
-    Exercise(id = id, name = name, isIncludedToTraining = isIncludedToTraining)
+    Exercise(
+        id = id,
+        name = name,
+        isIncludedToTraining = isIncludedToTraining,
+        duration = Converters().convertToTime(duration)
+    )
 
 /**
  * Преобразует доменную модель [Exercise] в объект базы данных [ExerciseEntity].
@@ -24,7 +29,12 @@ internal fun ExerciseEntity.toExercise(): Exercise =
  * @return Объект базы данных [ExerciseEntity].
  */
 internal fun Exercise.toExerciseEntity(): ExerciseEntity =
-    ExerciseEntity(id = id, name = name, isIncludedToTraining = isIncludedToTraining)
+    ExerciseEntity(
+        id = id,
+        name = name,
+        isIncludedToTraining = isIncludedToTraining,
+        duration = Converters().convertFromTime(duration)
+    )
 
 /**
  * Преобразует объект базы данных [WorkoutEntity] в доменную модель [Workout].
@@ -36,7 +46,7 @@ internal fun WorkoutEntity.toWorkout(): Workout =
         dateTime = dateTime,
         duration = duration,
         countOfExercises = countOfExercises,
-        text = TODO()
+        text = ""
     )
 
 /**

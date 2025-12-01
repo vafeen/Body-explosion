@@ -29,7 +29,7 @@ import ru.vafeen.presentation.common.components.UpdateAvailable
 import ru.vafeen.presentation.common.components.UpdateProgress
 import ru.vafeen.presentation.common.utils.copyTextToClipBoard
 import ru.vafeen.presentation.features.history.HistoryScreen
-import ru.vafeen.presentation.features.settings.SettingsScreen
+import ru.vafeen.presentation.features.settings.AccountScreen
 import ru.vafeen.presentation.features.training.TrainingScreen
 import ru.vafeen.presentation.features.user_sign.UserSignScreen
 import ru.vafeen.presentation.features.workout.WorkoutScreen
@@ -122,12 +122,12 @@ internal fun NavRoot(viewModel: NavRootViewModel = hiltViewModel()) {
                     entry<Screen.UserSign> {
                         UserSignScreen(onAuthSuccess = {
                             viewModel.handleIntent(
-                                NavRootIntent.ReplaceRoot(Screen.Training)
+                                NavRootIntent.ReplaceRoot(Screen.Workout)
                             )
                         })
                     }
                     entry<Screen.Training> { TrainingScreen(viewModel::handleIntent) }
-                    entry<Screen.Settings> { SettingsScreen() }
+                    entry<Screen.Settings> { AccountScreen() }
                     entry<Screen.History> { HistoryScreen() }
                     entry<Screen.Workout> { WorkoutScreen(viewModel::handleIntent) }
                 },

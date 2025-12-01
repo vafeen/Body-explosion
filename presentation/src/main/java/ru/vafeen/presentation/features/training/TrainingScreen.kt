@@ -23,6 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,12 +41,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import ru.vafeen.presentation.R
 import ru.vafeen.presentation.common.components.ExerciseString2
+import ru.vafeen.presentation.common.components.SettingsTabWithTimePicker
 import ru.vafeen.presentation.common.components.TextForThisTheme
 import ru.vafeen.presentation.features.workout.target
 import ru.vafeen.presentation.root.NavRootIntent
 import ru.vafeen.presentation.ui.theme.AppTheme
 import ru.vafeen.presentation.ui.theme.Colors
 import ru.vafeen.presentation.ui.theme.FontSize
+import java.time.LocalTime
 
 /**
  * Главный экран тренировки, который управляет отображением различных состояний тренировки.
@@ -230,9 +235,51 @@ internal fun NotStartedPane(
             fontSize = FontSize.big22
         )
         LazyColumn {
+
             items(items = state.exercises) {
-                it.ExerciseString2 { newExercise ->
-                    sendIntent(TrainingIntent.UpdateExercise(newExercise))
+                var isExerciseDurationDialogShowed by remember {
+                    mutableStateOf(false)
+                }
+                it.ExerciseString2(
+                    updateTraining = { newExercise ->
+                        sendIntent(TrainingIntent.UpdateExercise(newExercise))
+                    },
+                    onClick = { isExerciseDurationDialogShowed = true })
+                var tempExerciseDuration by remember { mutableStateOf(it.duration) }
+                if (isExerciseDurationDialogShowed) {
+                    SettingsTabWithTimePicker(
+                        time = it.duration,
+                        timeToChangeInDialog = tempExerciseDuration,
+                        isTimePickerShowed = isExerciseDurationDialogShowed,
+                        description = stringResource(R.string.time_of_exercise),
+                        switchTimePickerIsShowed = {
+                            isExerciseDurationDialogShowed = !isExerciseDurationDialogShowed
+                            tempExerciseDuration = it.duration
+                        },
+                        updateTime = { newTime ->
+                            tempExerciseDuration = newTime
+                        },
+                        applyTime = {
+                            sendIntent(
+                                TrainingIntent.UpdateExercise(
+                                    it.copy(
+                                        duration = tempExerciseDuration
+                                    )
+                                )
+                            )
+                            isExerciseDurationDialogShowed = false
+                        },
+                        resetTime = {
+                            sendIntent(
+                                TrainingIntent.UpdateExercise(
+                                    it.copy(
+                                        duration = LocalTime.of(0, 1, 0)
+                                    )
+                                )
+                            )
+                            isExerciseDurationDialogShowed = false
+                        }
+                    )
                 }
             }
         }

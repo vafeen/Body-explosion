@@ -15,4 +15,5 @@ internal data class ExerciseEntity(
     @PrimaryKey val id: Int,
     val name: String,
     val isIncludedToTraining: Boolean,
+    val duration: Long,
 )

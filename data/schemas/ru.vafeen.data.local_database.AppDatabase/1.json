@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "cb115b8219a355a994410a449964dceb",
+    "identityHash": "7d0ca01bb8dccb452da4c02108420c6d",
     "entities": [
       {
         "tableName": "training",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `isIncludedToTraining` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `isIncludedToTraining` INTEGER NOT NULL, `duration` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -23,6 +23,12 @@
           {
             "fieldPath": "isIncludedToTraining",
             "columnName": "isIncludedToTraining",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -97,7 +103,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cb115b8219a355a994410a449964dceb')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7d0ca01bb8dccb452da4c02108420c6d')"
     ]
   }
 }

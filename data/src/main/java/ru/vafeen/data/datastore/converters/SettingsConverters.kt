@@ -1,7 +1,9 @@
 package ru.vafeen.data.datastore.converters
 
 import ru.vafeen.data.datastore.models.DataStoreSettings
+import ru.vafeen.data.datastore.models.DatastoreUser
 import ru.vafeen.domain.models.Settings
+import ru.vafeen.domain.models.User
 
 /**
  * Преобразует модель настроек [DataStoreSettings], используемую на уровне данных,
@@ -12,10 +14,7 @@ import ru.vafeen.domain.models.Settings
 internal fun DataStoreSettings.toSettings(): Settings = Settings(
     accessToken = accessToken,
     refreshToken = refreshToken,
-    exerciseDuration = exerciseDurationMillis.toLocalTime(),
-    breakDuration = breakDurationMillis.toLocalTime(),
-    defaultExerciseDuration = defaultExerciseDurationMillis.toLocalTime(),
-    defaultBreakDuration = defaultBreakDurationMillis.toLocalTime(),
+    user = datastoreUser?.toUser()
 )
 
 /**
@@ -27,8 +26,8 @@ internal fun DataStoreSettings.toSettings(): Settings = Settings(
 internal fun Settings.toDataStoreSettings(): DataStoreSettings = DataStoreSettings(
     accessToken = accessToken,
     refreshToken = refreshToken,
-    exerciseDurationMillis = exerciseDuration.toMillisOfDay(),
-    breakDurationMillis = breakDuration.toMillisOfDay(),
-    defaultExerciseDurationMillis = defaultExerciseDuration.toMillisOfDay(),
-    defaultBreakDurationMillis = defaultBreakDuration.toMillisOfDay(),
+    datastoreUser = user?.toDatastoreUser()
 )
+
+private fun User.toDatastoreUser(): DatastoreUser = DatastoreUser(name, username)
+private fun DatastoreUser.toUser(): User = User(name, username)

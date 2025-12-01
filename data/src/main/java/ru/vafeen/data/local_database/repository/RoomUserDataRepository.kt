@@ -6,6 +6,7 @@ import ru.vafeen.data.local_database.AppDatabase
 import ru.vafeen.data.local_database.asList
 import ru.vafeen.data.local_database.entity.UserDataEntity
 import ru.vafeen.domain.models.SignResult
+import ru.vafeen.domain.models.User
 import ru.vafeen.domain.network.result.ResponseResult
 import ru.vafeen.domain.repository.UserDataRepository
 import javax.inject.Inject
@@ -62,7 +63,13 @@ internal class RoomUserDataRepository @Inject constructor(
             val accessToken = generateToken()
             val refreshToken = generateToken()
 
-            ResponseResult.Success(SignResult(accessToken, refreshToken))
+            ResponseResult.Success(
+                SignResult(
+                    accessToken = accessToken,
+                    refreshToken = refreshToken,
+                    user = User(name, username)
+                )
+            )
         } catch (e: Exception) {
             ResponseResult.Error(e)
         }
@@ -93,7 +100,13 @@ internal class RoomUserDataRepository @Inject constructor(
             val accessToken = generateToken()
             val refreshToken = generateToken()
 
-            ResponseResult.Success(SignResult(accessToken, refreshToken))
+            ResponseResult.Success(
+                SignResult(
+                    accessToken,
+                    refreshToken,
+                    user = User(userData.name, username)
+                )
+            )
         } catch (e: Exception) {
             ResponseResult.Error(e)
         }

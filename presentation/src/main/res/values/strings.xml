@@ -5,7 +5,7 @@
     <string name="mb">МБ</string>
     <string name="finish">Финиш</string>
     <string name="pause">Пауза</string>
-    <string name="settings">Настройки</string>
+    <string name="account">Профиль</string>
     <string name="long_tap_please">Пожалуйста, долгое нажатие</string>
     <string name="rest">Отдых</string>
     <string name="rest_pause">Пауза отдыха</string>
@@ -29,4 +29,6 @@
     <string name="duration">Длительность</string>
     <string name="count_of_exercises">Количество упражнений</string>
     <string name="description">Описание</string>
+    <string name="name">Имя:</string>
+    <string name="username">Имя пользователя:</string>
 </resources>

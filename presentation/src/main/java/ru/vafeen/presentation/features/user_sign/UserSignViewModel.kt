@@ -108,7 +108,8 @@ internal class UserSignViewModel @Inject constructor(
             settingsManager.save { settings ->
                 settings.copy(
                     accessToken = signResult.accessToken,
-                    refreshToken = signResult.refreshToken
+                    refreshToken = signResult.refreshToken,
+                    user = signResult.user
                 )
             }
             _effect.emit(

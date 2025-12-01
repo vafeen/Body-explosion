@@ -143,8 +143,8 @@ internal fun WorkoutScreen(
                     onClick = { viewModel.handleIntent(WorkoutIntent.NavigateToSettings) }) {
                     Icon(
                         modifier = Modifier,
-                        painter = painterResource(R.drawable.settings),
-                        contentDescription = stringResource(R.string.settings),
+                        painter = painterResource(R.drawable.account_circle),
+                        contentDescription = stringResource(R.string.account),
                         tint = AppTheme.colors.text
                     )
                 }

@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import ru.vafeen.presentation.R
 import ru.vafeen.presentation.common.components.time_picker.TimePicker
-import ru.vafeen.presentation.common.utils.formatAsTime
 import ru.vafeen.presentation.ui.theme.AppTheme
 import java.time.LocalTime
 
@@ -32,16 +31,16 @@ internal fun SettingsTabWithTimePicker(
     applyTime: () -> Unit,
     resetTime: () -> Unit,
 ) {
-    CardOfSettings(
-        text = time.formatAsTime(),
-        icon = {
-            Icon(
-                painter = painterResource(R.drawable.schedule),
-                contentDescription = description
-            )
-        },
-        onClick = switchTimePickerIsShowed,
-    )
+//    CardOfSettings(
+//        text = time.formatAsTime(),
+//        icon = {
+//            Icon(
+//                painter = painterResource(R.drawable.schedule),
+//                contentDescription = description
+//            )
+//        },
+//        onClick = switchTimePickerIsShowed,
+//    )
     if (isTimePickerShowed) {
         Dialog(
             onDismissRequest = if (time == timeToChangeInDialog) switchTimePickerIsShowed else {

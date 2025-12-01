@@ -48,9 +48,7 @@ internal class TrainingViewModel @AssistedInject constructor(
     private val settingsManager: SettingsManager,
     private val musicPlayer: MusicPlayer
 ) : ViewModel() {
-    private val settings = settingsManager.settingsFlow.value
-    private var secondsForExercise = settings.exerciseDuration.toSecondOfDay()
-    private var secondsForBreak = settings.breakDuration.toSecondOfDay()
+    private var secondsForBreak = 15
     private var exercises = listOf<Exercise>()
     private val _state = MutableStateFlow<TrainingState>(TrainingState.NotStarted(listOf()))
 
@@ -62,14 +60,6 @@ internal class TrainingViewModel @AssistedInject constructor(
     private val timerMutex = ReentrantLock()
     private var trainingJob: Job? = null
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            settingsManager.settingsFlow.collect { settings ->
-                secondsForExercise = settings.exerciseDuration.toSecondOfDay()
-                secondsForBreak = settings.breakDuration.toSecondOfDay()
-            }
-        }
-    }
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -149,7 +139,7 @@ internal class TrainingViewModel @AssistedInject constructor(
         _state.value = when (currentState) {
             is TrainingState.PausedTraining -> TrainingState.InProgress(
                 secondsLeft = currentState.secondsLeft,
-                secondsOnOneExercise = secondsForExercise,
+                secondsOnOneExercise = exercises[currentState.currentExercise].duration.toSecondOfDay(),
                 currentExercise = currentState.currentExercise,
                 exercises = exercises
             ).also { musicPlayer.resume() }
@@ -162,8 +152,8 @@ internal class TrainingViewModel @AssistedInject constructor(
             )
 
             else -> TrainingState.InProgress(
-                secondsLeft = secondsForExercise,
-                secondsOnOneExercise = secondsForExercise,
+                secondsLeft = exercises[0].duration.toSecondOfDay(),
+                secondsOnOneExercise = exercises[0].duration.toSecondOfDay(),
                 currentExercise = 0,
                 exercises = exercises
             ).also { musicPlayer.restart() }
@@ -210,8 +200,8 @@ internal class TrainingViewModel @AssistedInject constructor(
                         } else {
                             musicPlayer.restart()
                             _state.value = TrainingState.InProgress(
-                                secondsLeft = secondsForExercise,
-                                secondsOnOneExercise = secondsForExercise,
+                                secondsLeft = exercises[currentState.nextExercise].duration.toSecondOfDay(),
+                                secondsOnOneExercise = exercises[currentState.nextExercise].duration.toSecondOfDay(),
                                 currentExercise = currentState.nextExercise,
                                 exercises = exercises
                             )
