@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import ru.vafeen.domain.datastore.SettingsManager
@@ -89,7 +90,8 @@ internal class TrainingViewModel @AssistedInject constructor(
             val trainings = exerciseRepository.getAllExercises().first()
             if (trainings.isEmpty()) exerciseRepository.insert(exercises = defaultExercises)
             exerciseRepository.getAllExercises().collect { trainings ->
-                exercises = trainings.filter { it.isIncludedToTraining }
+                exercises = trainings
+//                        .filter { it.isIncludedToTraining }
                 _state.value = TrainingState.NotStarted(exercises = exercises)
             }
         }
@@ -107,11 +109,27 @@ internal class TrainingViewModel @AssistedInject constructor(
                 TrainingIntent.StartTraining -> startTraining()
                 TrainingIntent.PauseTraining -> pauseTraining()
                 is TrainingIntent.ShowToast -> showToast(intent.message)
+                is TrainingIntent.UpdateExercise -> updateExercise(intent.exercise)
             }
         }
     }
 
+    private fun updateExercise(exercise: Exercise) {
+        val state = _state.value as TrainingState.NotStarted
+        exercises = exercises.withUpdated(exercise)
+        _state.update { state.copy(exercises = exercises) }
+    }
 
+    private fun List<Exercise>.withUpdated(exercise: Exercise): List<Exercise> {
+        val index = this.indexOfFirst {
+            it.id == exercise.id
+        }
+        return if (index != -1) {
+            val newExercises = this.toMutableList()
+            newExercises[index] = exercise
+            newExercises
+        } else this
+    }
 
     private suspend fun showToast(message: String) =
         _effects.emit(TrainingEffect.ShowToast(message, Toast.LENGTH_SHORT))
@@ -127,7 +145,7 @@ internal class TrainingViewModel @AssistedInject constructor(
         if (!musicPlayer.isInitialized()) {
             musicPlayer.init()
         }
-
+        val exercises = exercises.filter { it.isIncludedToTraining }
         _state.value = when (currentState) {
             is TrainingState.PausedTraining -> TrainingState.InProgress(
                 secondsLeft = currentState.secondsLeft,
@@ -159,6 +177,7 @@ internal class TrainingViewModel @AssistedInject constructor(
      * Обрабатывает переходы между состояниями InProgress и Break.
      */
     private fun startTimer() = timerMutex.withLock {
+        val exercises = exercises.filter { it.isIncludedToTraining }
         trainingJob = viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
                 delay(1000)
@@ -227,6 +246,7 @@ internal class TrainingViewModel @AssistedInject constructor(
      */
     private fun pauseTraining() {
         musicPlayer.pause()
+        val exercises = exercises.filter { it.isIncludedToTraining }
         when (val currentState = _state.value) {
             is TrainingState.InProgress -> {
                 stopTimer()

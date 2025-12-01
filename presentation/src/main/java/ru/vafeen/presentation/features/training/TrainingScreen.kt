@@ -35,7 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import ru.vafeen.presentation.R
 import ru.vafeen.presentation.common.components.ExerciseString2
 import ru.vafeen.presentation.common.components.TextForThisTheme
@@ -231,7 +231,9 @@ internal fun NotStartedPane(
         )
         LazyColumn {
             items(items = state.exercises) {
-                it.ExerciseString2 { }
+                it.ExerciseString2 { newExercise ->
+                    sendIntent(TrainingIntent.UpdateExercise(newExercise))
+                }
             }
         }
         StartButton { sendIntent(TrainingIntent.StartTraining) }

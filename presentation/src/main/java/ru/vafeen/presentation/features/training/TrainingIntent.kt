@@ -1,5 +1,7 @@
 package ru.vafeen.presentation.features.training
 
+import ru.vafeen.domain.models.Exercise
+
 /**
  * Представляет намерения пользователя на экране тренировки.
  */
@@ -26,4 +28,5 @@ internal sealed interface TrainingIntent {
      * @property duration Длительность отображения сообщения (например, Toast.LENGTH_SHORT).
      */
     data class ShowToast(val message: String, val duration: Int) : TrainingIntent
+    data class UpdateExercise(val exercise: Exercise) : TrainingIntent
 }

@@ -15,7 +15,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import ru.vafeen.presentation.R
-import ru.vafeen.presentation.common.components.ExerciseString
 import ru.vafeen.presentation.common.components.SettingsTabWithTimePicker
 import ru.vafeen.presentation.common.components.TextForThisTheme
 import ru.vafeen.presentation.ui.theme.FontSize
@@ -76,11 +75,11 @@ internal fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                 )
             }
 
-            it.exercises.forEach { exercise ->
-                exercise.ExerciseString {
-                    viewModel.handleIntent(SettingsIntent.UpdateTraining(it))
-                }
-            }
+//            it.exercises.forEach { exercise ->
+//                exercise.ExerciseString {
+//                    viewModel.handleIntent(SettingsIntent.UpdateTraining(it))
+//                }
+//            }
             TextForThisTheme(
                 text = "${state.appVersion.second}(${state.appVersion.first})",
                 fontSize = FontSize.small17
