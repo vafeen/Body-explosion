@@ -111,7 +111,7 @@ internal fun HistoryScreen(
                 duration = LocalTime.of(1, 20, 0),
                 countOfExercises = 16
             )
-        )
+        ).sortedByDescending { it.dateTime }
     )
     Column(
         modifier = Modifier
@@ -137,6 +137,9 @@ internal fun HistoryScreen(
                 }
                 items(state.workout) { workout ->
                     workout.WorkoutString()
+                }
+                item {
+                    Spacer(modifier = Modifier)
                 }
             }
 
